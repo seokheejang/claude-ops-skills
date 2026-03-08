@@ -1,0 +1,24 @@
+# Cluster configuration mapping
+# Maps friendly names to kubeconfig paths and metadata
+# No secrets - only names, paths, and descriptive metadata
+#
+# 이 파일은 예시입니다. 실제 clusters.yaml은 install.sh가 자동 생성합니다.
+# 수동으로 만들려면 이 파일을 clusters.yaml로 복사 후 수정하세요.
+
+clusters:
+  my-cluster:
+    kubeconfig: "~/.kube/my_cluster_config"
+    description: "My K8s cluster"
+    namespaces:
+      - default
+      - app
+    notes: "optional notes"
+
+  my-prod:
+    kubeconfig: "~/.kube/my_prod_config"
+    description: "Production cluster"
+    namespaces:
+      - default
+    notes: "PRODUCTION - extra caution"
+
+default_cluster: my-cluster

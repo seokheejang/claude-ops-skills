@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(kubectl get *)",
+      "Bash(kubectl describe *)",
+      "Bash(kubectl logs *)",
+      "Bash(kubectl top *)",
+      "Bash(KUBECONFIG=* kubectl get *)",
+      "Bash(KUBECONFIG=* kubectl describe *)",
+      "Bash(KUBECONFIG=* kubectl logs *)",
+      "Bash(KUBECONFIG=* kubectl top *)",
+      "Bash(KUBECONFIG=* kubectl exec *)"
+    ],
+    "deny": [
+      "Bash(kubectl apply *)",
+      "Bash(kubectl delete *)",
+      "Bash(kubectl patch *)",
+      "Bash(kubectl scale *)",
+      "Bash(kubectl rollout *)",
+      "Bash(kubectl edit *)",
+      "Bash(kubectl create *)",
+      "Bash(kubectl replace *)",
+      "Bash(kubectl set *)",
+      "Bash(kubectl label *)",
+      "Bash(kubectl annotate *)",
+      "Bash(kubectl taint *)",
+      "Bash(kubectl cordon *)",
+      "Bash(kubectl drain *)",
+      "Bash(kubectl expose *)"
+    ]
+  }
+}

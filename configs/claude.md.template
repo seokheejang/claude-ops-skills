@@ -1,0 +1,23 @@
+# === claude-ops-skills:start ===
+# Managed by claude-ops-skills - DO NOT EDIT between markers
+# Run: <repo-path>/scripts/install.sh
+
+## K8s 안전 규칙 (CRITICAL - 절대 위반 금지)
+
+**kubectl 명령어는 반드시 READ-ONLY로만 사용할 것.**
+
+- 허용: `get`, `describe`, `logs`, `top`, `exec ... curl/wget` (조회 목적)
+- **절대 금지**: `apply`, `delete`, `patch`, `scale`, `rollout restart`, `edit`, `create`, `replace`, `set`, `label`, `annotate`, `taint`, `cordon`, `drain`, `expose`
+- K8s 리소스를 읽는 행위는 별도 허락 없이 진행 가능
+- K8s 리소스를 수정/변경/삭제하는 행위는 **어떤 상황에서도 절대 금지**
+- 사용자가 명시적으로 변경을 요청하더라도, 직접 명령어를 실행하지 말고 실행할 명령어를 텍스트로 안내할 것
+
+⚠️ 이 규칙은 모든 kubeconfig, 모든 네임스페이스, 모든 클러스터에 예외 없이 적용된다.
+
+## Available Skills
+
+- `/k8s-ops <cluster>` - K8s read-only 조회 (get, describe, logs, top)
+- `/ssh-ops <host>` - SSH 서버 인스펙션
+- `/rpc-health <chain>` - RPC/블록체인 노드 헬스체크
+- `/db-ops <database>` - DB read-only 조회
+# === claude-ops-skills:end ===

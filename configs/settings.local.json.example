@@ -1,0 +1,12 @@
+{
+  "_comment": "예시 파일. 필요한 규칙을 ~/.claude/settings.local.json에 복사하세요. install.sh는 이 파일을 절대 수정하지 않습니다.",
+  "permissions": {
+    "allow": [
+      "Bash(kubectl:*)",
+      "Bash(ssh:*)",
+      "Bash(curl:*)",
+      "WebFetch(domain:github.com)",
+      "WebSearch"
+    ]
+  }
+}

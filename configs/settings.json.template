@@ -1,0 +1,52 @@
+{
+  "_comment": "claude-ops-skills: merge into ~/.claude/settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(kubectl get *)",
+      "Bash(kubectl describe *)",
+      "Bash(kubectl logs *)",
+      "Bash(kubectl top *)",
+      "Bash(kubectl exec *)",
+      "Bash(KUBECONFIG=* kubectl get *)",
+      "Bash(KUBECONFIG=* kubectl describe *)",
+      "Bash(KUBECONFIG=* kubectl logs *)",
+      "Bash(KUBECONFIG=* kubectl top *)",
+      "Bash(KUBECONFIG=* kubectl exec *)",
+      "Bash(ssh * uptime)",
+      "Bash(ssh * free *)",
+      "Bash(ssh * df *)",
+      "Bash(ssh * top *)",
+      "Bash(ssh * ps *)",
+      "Bash(ssh * systemctl status *)",
+      "Bash(ssh * journalctl *)",
+      "Bash(ssh * tail *)",
+      "Bash(ssh * cat *)",
+      "Bash(ssh * netstat *)",
+      "Bash(ssh * ss *)"
+    ],
+    "deny": [
+      "Bash(kubectl apply *)",
+      "Bash(kubectl delete *)",
+      "Bash(kubectl patch *)",
+      "Bash(kubectl scale *)",
+      "Bash(kubectl rollout *)",
+      "Bash(kubectl edit *)",
+      "Bash(kubectl create *)",
+      "Bash(kubectl replace *)",
+      "Bash(kubectl set *)",
+      "Bash(kubectl label *)",
+      "Bash(kubectl annotate *)",
+      "Bash(kubectl taint *)",
+      "Bash(kubectl cordon *)",
+      "Bash(kubectl drain *)",
+      "Bash(kubectl expose *)",
+      "Bash(KUBECONFIG=* kubectl apply *)",
+      "Bash(KUBECONFIG=* kubectl delete *)",
+      "Bash(KUBECONFIG=* kubectl patch *)",
+      "Bash(KUBECONFIG=* kubectl scale *)",
+      "Bash(KUBECONFIG=* kubectl rollout *)",
+      "Bash(KUBECONFIG=* kubectl edit *)",
+      "Bash(KUBECONFIG=* kubectl create *)"
+    ]
+  }
+}
