@@ -46,8 +46,6 @@ repo에서 skill 수정 후:
 ./scripts/uninstall.sh
 ```
 
-## 다음 작업 후보
+## 다음 작업
 
-1. **프로젝트별 skill 적용 테스트**: 다른 프로젝트 repo에 `.claude/skills/` 추가해보기
-2. **agents 테스트**: `k8s-debugger`, `rpc-monitor` 에이전트 실제 동작 확인
-3. **skill 확장**: 자주 쓰는 워크플로우를 skill로 추가
+→ [CHANGELOG.md](CHANGELOG.md) 참조
