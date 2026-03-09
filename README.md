@@ -21,6 +21,7 @@ K8s 트러블슈팅, 블록체인 RPC 모니터링, DB 조회, SSH 인스펙션 
 | Skill | 명령어 | 설명 |
 |-------|--------|------|
 | k8s-ops | `/k8s-ops <cluster>` | K8s 클러스터 조회 (get, describe, logs, top) |
+| k8s-security | `/k8s-security <cluster>` | K8s 보안 점검 (RBAC, NetworkPolicy, Pod Security 감사) |
 | ssh-ops | `/ssh-ops <host>` | SSH 서버 인스펙션 |
 | rpc-health | `/rpc-health <endpoint>` | 블록체인 RPC 노드 헬스체크 |
 | db-ops | `/db-ops <database>` | DB 조회 (SELECT, SHOW만 허용) |
@@ -30,13 +31,39 @@ K8s 트러블슈팅, 블록체인 RPC 모니터링, DB 조회, SSH 인스펙션 
 | Agent | 설명 |
 |-------|------|
 | k8s-debugger | K8s 이슈 체계적 디버깅 |
+| k8s-security-auditor | K8s 종합 보안 감사 (위험도 분석 + 개선 가이드) |
 | rpc-monitor | RPC 노드 상태 모니터링 |
+
+## Cluster Aliases
+
+`clusters.yaml`에 `aliases` 필드를 추가하면 짧은 이름으로 클러스터를 지정할 수 있습니다:
+
+```yaml
+# skills/k8s-ops/clusters.yaml (로컬 전용, .gitignore)
+clusters:
+  my-cluster:
+    kubeconfig: "~/.kube/my_cluster_config"
+    aliases: ["dev", "my dev"]     # /k8s-ops dev → my-cluster
+  my-prod:
+    kubeconfig: "~/.kube/my_prod_config"
+    aliases: ["prod"]              # /k8s-security prod → my-prod
+```
+
+사용 예시:
+- `/k8s-ops dev` → aliases에서 `dev` 매칭 → `my-cluster`
+- `/k8s-security prod` → aliases에서 `prod` 매칭 → `my-prod`
+- `/k8s-ops my-cluster` → 키 이름 정확히 일치 → `my-cluster`
+
+매칭 우선순위: 키 이름 정확히 일치 > aliases 일치 > 부분 매칭 (후보 복수면 선택 요청)
+
+> `clusters.yaml`은 `.gitignore`에 포함되어 있어 실제 클러스터명이 public repo에 노출되지 않습니다. 설정 예시는 `clusters.yaml.example`을 참고하세요.
 
 ## Structure
 
 ```
 ├── skills/           # ~/.claude/skills/에 심링크
 │   ├── k8s-ops/      # K8s 조회 skill + clusters.yaml (로컬 자동 생성)
+│   ├── k8s-security/ # K8s 보안 점검 skill
 │   ├── ssh-ops/      # SSH 인스펙션 skill
 │   ├── rpc-health/   # RPC 헬스체크 skill
 │   └── db-ops/       # DB 조회 skill

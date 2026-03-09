@@ -5,6 +5,13 @@ claude-ops-skills 작업 이력 및 다음 작업 관리.
 
 ## 작업 이력
 
+### v0.4 — K8s Security Audit + Cluster Aliases (2026-03-09)
+- [02-skill-quality-improvement.md](02-skill-quality-improvement.md) (K8s Security Audit / Cluster Aliases 섹션)
+- `k8s-security` skill 추가: 7개 보안 도메인 점검 (RBAC, NetworkPolicy, Pod Security, Container Config, Secrets/SA, Services, Image Security)
+- `k8s-security-auditor` agent 추가: 종합 보안 감사 워크플로우 (위험도 분석, 상관관계 분석, 개선 가이드)
+- Cluster aliases 기능: `clusters.yaml`에 `aliases` 필드 추가, 짧은 이름으로 클러스터 지정 가능
+- `README.md` 업데이트: Skills/Agents 테이블, Cluster Aliases 섹션 추가
+
 ### v0.3 — PreToolUse Hook 도입 (2026-03-09)
 - 복합 Bash 명령(파이프, 체이닝, 리다이렉트) 자동 승인 hook 추가
 - `shfmt` AST 파싱으로 모든 서브 명령을 검증 (settings.json allow/deny 재사용)
@@ -34,7 +41,7 @@ claude-ops-skills 작업 이력 및 다음 작업 관리.
 - [ ] **agent 실전 테스트**: k8s-debugger, rpc-monitor를 실제 이슈 상황에서 사용해보기
 
 ### 중간 우선순위
-- [ ] **K8s 보안 agent**: 클러스터 보안 점검 자동화 (RBAC, NetworkPolicy, PodSecurity 등 감사)
+- [x] **K8s 보안 skill + agent**: 클러스터 보안 점검 자동화 (RBAC, NetworkPolicy, PodSecurity 등 감사) → v0.4
 - [ ] **Helm Generator/Validator**: Helm chart 생성 + 검증 skill 쌍
 - [ ] **Terraform Generator/Validator**: Terraform 코드 생성 + plan 검증 skill 쌍
 - [ ] **Generator/Validator 패턴 도입**: 필요시 k8s-yaml-validator 등 추가

@@ -9,6 +9,7 @@ clusters:
   my-cluster:
     kubeconfig: "~/.kube/my_cluster_config"
     description: "My K8s cluster"
+    aliases: ["my dev", "dev"]          # /k8s-ops dev → my-cluster로 매핑
     namespaces:
       - default
       - app
@@ -17,6 +18,7 @@ clusters:
   my-prod:
     kubeconfig: "~/.kube/my_prod_config"
     description: "Production cluster"
+    aliases: ["prod", "my prod"]        # /k8s-ops prod → my-prod로 매핑
     namespaces:
       - default
     notes: "PRODUCTION - extra caution"
