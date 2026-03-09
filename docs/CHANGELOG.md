@@ -5,6 +5,11 @@ claude-ops-skills 작업 이력 및 다음 작업 관리.
 
 ## 작업 이력
 
+### v0.5 — GitHub Actions Security Check (2026-03-09)
+- `.github/workflows/security-check.yml` 추가: PR/push 시 자동 보안 검사
+- 6개 체크 항목: 금지 파일, 개인 경로, credential, skill 구조, mutating kubectl, 하드코딩 IP
+- CLAUDE.md 보안 체크리스트를 CI로 자동화
+
 ### v0.4 — K8s Security Audit + Cluster Aliases (2026-03-09)
 - [02-skill-quality-improvement.md](02-skill-quality-improvement.md) (K8s Security Audit / Cluster Aliases 섹션)
 - `k8s-security` skill 추가: 7개 보안 도메인 점검 (RBAC, NetworkPolicy, Pod Security, Container Config, Secrets/SA, Services, Image Security)

@@ -1,0 +1,173 @@
+name: Security Check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  security-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # 1. Gitignore 대상 파일이 커밋에 포함되었는지 검사
+      - name: Check forbidden files not committed
+        run: |
+          FORBIDDEN_FILES=(
+            "skills/k8s-ops/clusters.yaml"
+            ".env"
+            ".envrc"
+            ".claude/settings.local.json"
+            ".claude/CLAUDE.local.md"
+          )
+          FOUND=0
+          for f in "${FORBIDDEN_FILES[@]}"; do
+            if [ -f "$f" ]; then
+              echo "::error::Forbidden file committed: $f"
+              FOUND=1
+            fi
+          done
+          if [ $FOUND -eq 1 ]; then
+            exit 1
+          fi
+          echo "✅ No forbidden files found"
+
+      # 2. 개인 경로 유출 검사
+      - name: Check no personal paths leaked
+        run: |
+          # /Users/<username>/ 또는 /home/<username>/ 패턴 (예시/템플릿 제외)
+          PATTERN='/Users/[a-zA-Z0-9_-]+/|/home/[a-zA-Z0-9_-]+/dev/'
+          FOUND=$(grep -rEn "$PATTERN" \
+            --include="*.md" --include="*.yaml" --include="*.yml" \
+            --include="*.json" --include="*.sh" \
+            --exclude-dir=".git" \
+            --exclude-dir=".claude" \
+            --exclude="*.example" \
+            --exclude="security-check.yml" \
+            . || true)
+          if [ -n "$FOUND" ]; then
+            echo "::error::Personal paths found in committed files:"
+            echo "$FOUND"
+            exit 1
+          fi
+          echo "✅ No personal paths leaked"
+
+      # 3. Credential 패턴 검사
+      - name: Check no credentials leaked
+        run: |
+          # 실제 값이 할당된 credential 패턴 검사 (설명/주석 제외)
+          PATTERNS=(
+            'password\s*[:=]\s*["\x27][^"\x27]+'
+            'token\s*[:=]\s*["\x27][^"\x27]+'
+            'api[_-]?key\s*[:=]\s*["\x27][^"\x27]+'
+            'secret\s*[:=]\s*["\x27][^"\x27]+'
+            'BEGIN (RSA |EC |DSA |OPENSSH )?PRIVATE KEY'
+          )
+          FOUND=0
+          for p in "${PATTERNS[@]}"; do
+            MATCHES=$(grep -rEin "$p" \
+              --include="*.md" --include="*.yaml" --include="*.yml" \
+              --include="*.json" --include="*.sh" \
+              --exclude-dir=".git" \
+              --exclude-dir=".claude" \
+              --exclude="*.example" \
+              --exclude="security-check.yml" \
+              . || true)
+            if [ -n "$MATCHES" ]; then
+              echo "::warning::Potential credential pattern found:"
+              echo "$MATCHES"
+              FOUND=1
+            fi
+          done
+          if [ $FOUND -eq 1 ]; then
+            echo "::error::Review the above matches. If they are false positives (documentation/comments), this is OK."
+            # warning only - credentials in docs context may be false positives
+            # exit 1
+          fi
+          echo "✅ Credential check complete"
+
+      # 4. SKILL.md 구조 검증
+      - name: Validate skill structure
+        run: |
+          ERRORS=0
+          for dir in skills/*/; do
+            SKILL_NAME=$(basename "$dir")
+            SKILL_FILE="$dir/SKILL.md"
+
+            # SKILL.md 존재 여부
+            if [ ! -f "$SKILL_FILE" ]; then
+              echo "::error::Missing SKILL.md in $dir"
+              ERRORS=1
+              continue
+            fi
+
+            # frontmatter 필수 필드 확인
+            for field in "name:" "description:" "allowed-tools:"; do
+              if ! head -10 "$SKILL_FILE" | grep -q "$field"; then
+                echo "::error::Missing '$field' in $SKILL_FILE frontmatter"
+                ERRORS=1
+              fi
+            done
+
+            # kebab-case 디렉토리명 검증
+            if ! echo "$SKILL_NAME" | grep -qE '^[a-z0-9]+(-[a-z0-9]+)*$'; then
+              echo "::error::Skill directory '$SKILL_NAME' is not kebab-case"
+              ERRORS=1
+            fi
+          done
+
+          if [ $ERRORS -eq 1 ]; then
+            exit 1
+          fi
+          echo "✅ All skills have valid structure"
+
+      # 5. Safety rule 검증 - mutating kubectl 명령어가 허용 목록에 없는지
+      - name: Check no mutating kubectl in allowed commands
+        run: |
+          MUTATING="apply|delete|patch|scale|rollout|edit|create|replace|set|label|annotate|taint|cordon|drain|expose"
+          FOUND=0
+
+          for skill_file in skills/*/SKILL.md; do
+            # "허용 명령어" ~ "절대 금지" 사이 섹션에서 mutating 명령어 검사
+            # 허용 섹션에 mutating 명령어가 `kubectl <mutating>` 형태로 있으면 위반
+            MATCHES=$(grep -En "kubectl\s+($MUTATING)" "$skill_file" | grep -iv "금지\|절대\|never\|forbidden\|禁止" || true)
+            if [ -n "$MATCHES" ]; then
+              # 허용 섹션에서만 검사 (금지 설명 문맥은 제외)
+              while IFS= read -r line; do
+                LINE_NUM=$(echo "$line" | cut -d: -f1)
+                # 해당 라인이 금지 목록 설명이 아닌 허용/실행 컨텍스트인지 확인
+                CONTEXT=$(sed -n "$((LINE_NUM-2)),$((LINE_NUM+2))p" "$skill_file")
+                if echo "$CONTEXT" | grep -qiE "허용|allowed|execute|실행|run"; then
+                  echo "::error::Mutating kubectl command found in allowed section of $skill_file:$LINE_NUM"
+                  echo "$line"
+                  FOUND=1
+                fi
+              done <<< "$MATCHES"
+            fi
+          done
+
+          if [ $FOUND -eq 1 ]; then
+            exit 1
+          fi
+          echo "✅ No mutating kubectl commands in allowed sections"
+
+      # 6. IP/호스트 하드코딩 검사
+      - name: Check no hardcoded IPs
+        run: |
+          # 실제 IP 패턴 (10.x, 172.x, 192.168.x, public IPs)
+          # localhost, 0.0.0.0, 127.0.0.1 은 제외
+          FOUND=$(grep -rEn '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' \
+            --include="*.md" --include="*.yaml" --include="*.yml" \
+            --include="*.json" --include="*.sh" \
+            --exclude-dir=".git" \
+            --exclude-dir=".claude" \
+            --exclude="*.example" \
+            --exclude="security-check.yml" \
+            . | grep -vE '127\.0\.0\.1|0\.0\.0\.0|localhost|1\.2\.3\.4|10\.0\.0\.1|255\.' || true)
+          if [ -n "$FOUND" ]; then
+            echo "::warning::Possible hardcoded IPs found (review if these are real):"
+            echo "$FOUND"
+          fi
+          echo "✅ IP check complete"
