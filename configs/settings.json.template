@@ -1,6 +1,6 @@
 {
   "_comment": "claude-ops-skills: merge into ~/.claude/settings.json",
-  "_categories": "allow 순서: K8s > SSH > Git > GitHub CLI > Linux > Dev tools > Web",
+  "_categories": "allow flow: K8s > SSH > Git > GitHub CLI > Linux > Dev tools > AWS > Tools > Web",
   "permissions": {
     "allow": [
       "Bash(kubectl get *)",
@@ -132,6 +132,27 @@
       "Bash(jq *)",
       "Bash(yq *)",
 
+      "Bash(aws * --dry-run*)",
+      "Bash(aws s3 ls*)",
+      "Bash(aws sts get-caller-identity*)",
+      "Bash(aws ec2 describe-*)",
+      "Bash(aws ecs describe-*)",
+      "Bash(aws ecs list-*)",
+      "Bash(aws eks describe-*)",
+      "Bash(aws eks list-*)",
+      "Bash(aws rds describe-*)",
+      "Bash(aws elb describe-*)",
+      "Bash(aws elbv2 describe-*)",
+      "Bash(aws iam list-*)",
+      "Bash(aws iam get-*)",
+      "Bash(aws logs *)",
+      "Bash(aws route53 list-*)",
+      "Bash(aws cloudformation describe-*)",
+      "Bash(aws ssm get-parameter*)",
+
+      "Read(*)",
+      "Glob(*)",
+      "Grep(*)",
       "WebFetch(*)",
       "WebSearch(*)"
     ],
@@ -157,7 +178,47 @@
       "Bash(KUBECONFIG=* kubectl scale *)",
       "Bash(KUBECONFIG=* kubectl rollout *)",
       "Bash(KUBECONFIG=* kubectl edit *)",
-      "Bash(KUBECONFIG=* kubectl create *)"
+      "Bash(KUBECONFIG=* kubectl create *)",
+
+      "Bash(rm -rf /*)",
+      "Bash(rm -rf ~*)",
+      "Bash(rm -rf .*)",
+      "Bash(sudo rm -rf *)",
+      "Bash(mkfs*)",
+      "Bash(dd if=*)",
+      "Bash(:(){ :|:& };:*)",
+
+      "Bash(shutdown*)",
+      "Bash(reboot*)",
+      "Bash(init 0*)",
+      "Bash(halt*)",
+      "Bash(poweroff*)",
+
+      "Bash(chmod -R 777 *)",
+      "Bash(chmod 777 *)",
+      "Bash(chown -R *)",
+
+      "Bash(git push --force*)",
+      "Bash(git push -f *)",
+      "Bash(git reset --hard*)",
+      "Bash(git clean -fd*)",
+
+      "Bash(aws s3 rm *)",
+      "Bash(aws s3 rb *)",
+      "Bash(aws ec2 terminate-*)",
+      "Bash(aws ec2 delete-*)",
+      "Bash(aws rds delete-*)",
+      "Bash(aws iam delete-*)",
+      "Bash(aws cloudformation delete-*)",
+
+      "Bash(docker rm -f *)",
+      "Bash(docker rmi -f *)",
+      "Bash(docker system prune *)",
+
+      "Bash(curl * | bash*)",
+      "Bash(curl * | sh*)",
+      "Bash(wget * | bash*)",
+      "Bash(wget * | sh*)"
     ]
   },
   "hooks": {
@@ -168,6 +229,17 @@
           {
             "type": "command",
             "command": "__REPO_DIR__/scripts/pretooluse-bash.sh"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "_comment": "macOS: notify when task completes (skips if VSCode/iTerm is focused)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "FRONT=$(osascript -e 'tell application \"System Events\" to get name of first application process whose frontmost is true'); if [ -n \"$VSCODE_PID\" ] && ([ \"$FRONT\" = \"Electron\" ] || [ \"$FRONT\" = \"Code\" ]); then exit 0; elif [ \"$TERM_PROGRAM\" = \"iTerm.app\" ] && [ \"$FRONT\" = \"iTerm2\" ]; then exit 0; else osascript -e 'display notification \"Task Complete\" with title \"Claude Code\" sound name \"Glass\"'; fi"
           }
         ]
       }
