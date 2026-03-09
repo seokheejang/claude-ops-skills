@@ -5,6 +5,14 @@ claude-ops-skills 작업 이력 및 다음 작업 관리.
 
 ## 작업 이력
 
+### v0.3 — PreToolUse Hook 도입 (2026-03-09)
+- 복합 Bash 명령(파이프, 체이닝, 리다이렉트) 자동 승인 hook 추가
+- `shfmt` AST 파싱으로 모든 서브 명령을 검증 (settings.json allow/deny 재사용)
+- `install.sh` hooks 머지 로직 추가 + `shfmt` 필수 의존성 추가
+- `settings.json.template` allow 패턴 개선 + hooks.PreToolUse 섹션 추가
+- Makefile 추가 (`make install`, `make test`)
+- 참고: oryband/claude-code-auto-approve
+
 ### v0.2 — Skills & Agents 품질 개선 (2026-03-08)
 - [02-skill-quality-improvement.md](02-skill-quality-improvement.md)
 - 4개 skill SKILL.md 체계적 워크플로우로 개선 (When to Use, Step-by-Step, Troubleshooting, 판정 기준)
@@ -32,6 +40,7 @@ claude-ops-skills 작업 이력 및 다음 작업 관리.
 - [ ] **Generator/Validator 패턴 도입**: 필요시 k8s-yaml-validator 등 추가
 - [ ] **프로젝트별 skill 적용**: 다른 프로젝트 repo에 `.claude/skills/` 추가 테스트
 - [ ] **새 skill 후보**: promql-generator, log-search, infra-report 등
+- [ ] **hook 테스트 강화**: BATS 기반 테스트 suite 추가 (oryband 참고)
 
 ### 낮은 우선순위
 - [ ] **install.sh 개선**: clusters.yaml 생성 시 kubeconfig validation 추가

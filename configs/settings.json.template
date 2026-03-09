@@ -14,7 +14,7 @@
       "Bash(KUBECONFIG=* kubectl top *)",
       "Bash(KUBECONFIG=* kubectl exec *)",
 
-      "Bash(ssh * uptime)",
+      "Bash(ssh * uptime*)",
       "Bash(ssh * free *)",
       "Bash(ssh * df *)",
       "Bash(ssh * top *)",
@@ -27,40 +27,40 @@
       "Bash(ssh * ss *)",
 
       "Bash(git status*)",
-      "Bash(git log *)",
+      "Bash(git log*)",
       "Bash(git diff*)",
       "Bash(git branch*)",
-      "Bash(git show *)",
-      "Bash(git remote -v*)",
+      "Bash(git show*)",
+      "Bash(git remote*)",
       "Bash(git stash list*)",
-      "Bash(git tag *)",
-      "Bash(git blame *)",
-      "Bash(git rev-parse *)",
-      "Bash(git shortlog *)",
-      "Bash(git config --get *)",
+      "Bash(git tag*)",
+      "Bash(git blame*)",
+      "Bash(git rev-parse*)",
+      "Bash(git shortlog*)",
+      "Bash(git config --get*)",
       "Bash(git config --list*)",
 
       "Bash(gh pr list*)",
-      "Bash(gh pr view *)",
-      "Bash(gh pr diff *)",
-      "Bash(gh pr checks *)",
+      "Bash(gh pr view*)",
+      "Bash(gh pr diff*)",
+      "Bash(gh pr checks*)",
       "Bash(gh pr status*)",
       "Bash(gh issue list*)",
-      "Bash(gh issue view *)",
+      "Bash(gh issue view*)",
       "Bash(gh issue status*)",
-      "Bash(gh repo view *)",
+      "Bash(gh repo view*)",
       "Bash(gh run list*)",
-      "Bash(gh run view *)",
+      "Bash(gh run view*)",
       "Bash(gh api *)",
       "Bash(gh release list*)",
-      "Bash(gh release view *)",
+      "Bash(gh release view*)",
 
-      "Bash(ls *)",
+      "Bash(ls*)",
       "Bash(find *)",
       "Bash(which *)",
       "Bash(whoami*)",
       "Bash(pwd*)",
-      "Bash(env *)",
+      "Bash(env*)",
       "Bash(echo *)",
       "Bash(cat *)",
       "Bash(head *)",
@@ -95,7 +95,7 @@
       "Bash(netstat *)",
       "Bash(ss *)",
       "Bash(lsof *)",
-      "Bash(xargs:*)",
+      "Bash(xargs *)",
 
       "Bash(node --version*)",
       "Bash(npm list*)",
@@ -158,6 +158,19 @@
       "Bash(KUBECONFIG=* kubectl rollout *)",
       "Bash(KUBECONFIG=* kubectl edit *)",
       "Bash(KUBECONFIG=* kubectl create *)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "__REPO_DIR__/scripts/pretooluse-bash.sh"
+          }
+        ]
+      }
     ]
   }
 }

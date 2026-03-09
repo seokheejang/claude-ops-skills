@@ -2,8 +2,10 @@
 
 ## 현재 상태
 
-- `install.sh` 실행 완료 → skills 심링크, settings.json 머지, CLAUDE.md 머지 완료
+- `install.sh` 실행 완료 → skills 심링크, settings.json 머지 (permissions + hooks), CLAUDE.md 머지 완료
+- PreToolUse hook 적용 → 복합 Bash 명령(파이프, 체이닝, 리다이렉트)도 자동 승인
 - 백업 위치: `~/.claude/backups/claude-ops-skills/<timestamp>/`
+- 필수 의존성: `jq`, `shfmt`
 
 ## 커밋 전 확인/수정 필요 사항
 
@@ -38,12 +40,17 @@ repo에서 skill 수정 후:
 ```bash
 # 심링크이므로 skill 내용 변경은 즉시 반영 (재시작만 필요)
 # settings.json이나 CLAUDE.md 템플릿을 수정한 경우:
-./scripts/update.sh
+make install   # 또는 ./scripts/update.sh
+```
+
+### Hook 테스트
+```bash
+make test
 ```
 
 ### 제거
 ```bash
-./scripts/uninstall.sh
+make uninstall   # 또는 ./scripts/uninstall.sh
 ```
 
 ## 다음 작업

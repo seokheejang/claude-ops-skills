@@ -66,3 +66,10 @@ K8s 트러블슈팅, 블록체인 RPC 모니터링, DB 조회, SSH 인스펙션 
 - kubectl 변경 명령어(apply, delete, patch 등)는 deny 규칙 + CLAUDE.md 지침으로 이중 차단
 - 보안 정보(kubeconfig 내용, SSH 키)는 이 repo에 포함되지 않음
 - `clusters.yaml`은 로컬 전용 — `install.sh`가 `~/.kube/` 스캔하여 자동 생성 (`.gitignore`에 포함)
+
+
+## Reference
+
+- [cc-devops-skills](https://github.com/akin-ozer/cc-devops-skills) - DevOps skill 구조 및 SKILL.md 패턴 참고
+- [wshobson/agents](https://github.com/wshobson/agents) - Claude Code plugin/agent 아키텍처 참고
+- [claude-code-auto-approve](https://github.com/oryband/claude-code-auto-approve) - PreToolUse hook 복합 명령 파싱 (shfmt AST) 참고

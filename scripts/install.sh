@@ -32,8 +32,13 @@ backed_up=false
 
 # --- 의존성 확인 ---
 check_dependencies() {
-    if ! command -v jq &> /dev/null; then
-        log_error "jq가 필요합니다. 설치: brew install jq"
+    local missing=()
+    command -v jq &> /dev/null    || missing+=("jq")
+    command -v shfmt &> /dev/null || missing+=("shfmt")
+
+    if [ ${#missing[@]} -gt 0 ]; then
+        log_error "필수 의존성이 없습니다: ${missing[*]}"
+        log_error "설치: brew install ${missing[*]}"
         exit 1
     fi
 }
@@ -110,22 +115,29 @@ merge_settings() {
         return 1
     fi
 
+    # __REPO_DIR__ 치환된 임시 템플릿 생성
+    local resolved_template
+    resolved_template=$(mktemp)
+    sed "s|__REPO_DIR__|${REPO_DIR}|g" "$template" > "$resolved_template"
+
     # settings.json이 없으면 새로 생성
     if [ ! -f "$SETTINGS_FILE" ]; then
         log_warn "기존 settings.json 없음 → 템플릿에서 생성"
-        # _comment 필드 제거하고 복사
-        jq 'del(._comment)' "$template" > "$SETTINGS_FILE"
+        jq 'del(._comment) | del(._categories)' "$resolved_template" > "$SETTINGS_FILE"
         log_info "  settings.json 생성 완료"
+        rm -f "$resolved_template"
         return
     fi
 
     backup_file "$SETTINGS_FILE"
 
-    # allow/deny 규칙 머지 + 중복 제거 + 기존 설정 보존
+    # permissions + hooks 머지 (기존 설정 보존)
     local merged
-    merged=$(jq -s '
+    merged=$(jq -s --arg repo_dir "$REPO_DIR" '
         .[0] as $template | .[1] as $existing |
-        $existing * {
+
+        # permissions 머지
+        ($existing * {
             permissions: {
                 allow: (
                     (($existing.permissions.allow // []) + ($template.permissions.allow // []))
@@ -136,12 +148,41 @@ merge_settings() {
                     | unique
                 )
             }
-        }
-    ' "$template" "$SETTINGS_FILE")
+        }) |
 
-    # _comment 필드 제거
-    echo "$merged" | jq 'del(._comment)' > "$SETTINGS_FILE"
-    log_info "  settings.json 머지 완료 (hooks 등 기존 설정 보존)"
+        # hooks 머지 (기존 hooks 보존 + 템플릿 hooks 추가)
+        .hooks = (
+            ($existing.hooks // {}) as $eh |
+            ($template.hooks // {}) as $th |
+            ($eh | to_entries) as $existing_entries |
+            ($th | to_entries) as $template_entries |
+            (
+                $existing_entries + (
+                    $template_entries | map(
+                        .key as $k | .value as $v |
+                        if ($eh | has($k)) then
+                            # 같은 이벤트 타입이 있으면 command 기준으로 중복 제거 후 합침
+                            {
+                                key: $k,
+                                value: (
+                                    ($eh[$k] + $v)
+                                    | unique_by(.hooks[0].command)
+                                )
+                            }
+                        else
+                            # 새 이벤트 타입이면 그대로 추가
+                            {key: $k, value: $v}
+                        end
+                    )
+                )
+            ) | unique_by(.key) | from_entries
+        )
+    ' "$resolved_template" "$SETTINGS_FILE")
+
+    # _comment, _categories 필드 제거
+    echo "$merged" | jq 'del(._comment) | del(._categories)' > "$SETTINGS_FILE"
+    rm -f "$resolved_template"
+    log_info "  settings.json 머지 완료 (permissions + hooks)"
 }
 
 # --- CLAUDE.md 머지 ---
