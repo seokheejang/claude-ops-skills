@@ -23,6 +23,7 @@ make test       # Run PreToolUse hook tests
 | k8s-security | `/k8s-security <cluster>` | K8s security audit (RBAC, NetworkPolicy, Pod Security) |
 | ssh-ops | `/ssh-ops <host>` | SSH server inspection |
 | rpc-health | `/rpc-health <endpoint>` | Blockchain RPC node health check |
+| rpc-agent | `/rpc-agent <endpoint> <module>` | RPC analytics agent (block traversal, tx counting) |
 | db-ops | `/db-ops <database>` | DB read-only queries (SELECT, SHOW only) |
 
 ## Agents
@@ -32,6 +33,7 @@ make test       # Run PreToolUse hook tests
 | k8s-debugger | Systematic K8s issue debugging |
 | k8s-security-auditor | Comprehensive K8s security audit (risk analysis + remediation guide) |
 | rpc-monitor | RPC node status monitoring |
+| rpc-analytics | RPC analytics engine (block traversal, tx aggregation) |
 
 ## Cluster Aliases
 
@@ -65,8 +67,14 @@ Match priority: exact key name > alias match > partial match (prompts selection 
 │   ├── k8s-security/ # K8s security audit skill
 │   ├── ssh-ops/      # SSH inspection skill
 │   ├── rpc-health/   # RPC health check skill
+│   ├── rpc-agent/    # RPC analytics agent entry point
+│   │   └── scripts/  # Bundled analysis scripts (cosmos_total_tx.py, etc.)
 │   └── db-ops/       # DB query skill
 ├── agents/           # Sub-agent definitions
+│   ├── rpc-analytics.md  # RPC analytics engine (EVM + Cosmos)
+│   ├── k8s-debugger.md
+│   ├── k8s-security-auditor.md
+│   └── rpc-monitor.md
 ├── configs/          # Configuration templates
 │   ├── settings.json.template     # allow/deny rules
 │   ├── claude.md.template         # CLAUDE.md merge content

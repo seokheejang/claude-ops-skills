@@ -20,5 +20,6 @@
 - `/k8s-security <cluster>` - K8s 보안 점검 (RBAC, NetworkPolicy, Pod Security 감사)
 - `/ssh-ops <host>` - SSH 서버 인스펙션
 - `/rpc-health <chain>` - RPC/블록체인 노드 헬스체크
+- `/rpc-agent <endpoint> <module>` - RPC 분석 에이전트 (블록 순회, TX 집계 등)
 - `/db-ops <database>` - DB read-only 조회
 # === claude-ops-skills:end ===

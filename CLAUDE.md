@@ -22,6 +22,12 @@ DevOps 운영용 Claude Code Skills & Agents 저장소.
 - kebab-case 사용 (예: `k8s-ops`, `rpc-health`)
 - 각 skill 디렉토리에 반드시 SKILL.md 포함
 
+## Commit Message Convention
+
+Conventional Commits 사용:
+- `feat:` 새 기능 / `fix:` 버그 수정 / `docs:` 문서 / `chore:` 설정·빌드 / `ci:` CI/CD / `refactor:` 리팩토링 / `test:` 테스트
+- scope 선택 사용: `feat(k8s-security): add RBAC audit`
+
 ## Commit / PR 시 보안 체크리스트 (CRITICAL)
 
 커밋 또는 주요 변경 전 반드시 아래 항목을 확인할 것:
