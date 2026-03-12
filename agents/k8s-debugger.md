@@ -72,6 +72,8 @@ Service 확인 → endpoints 확인 (비어있으면 selector 불일치)
 ### 스토리지 문제
 ```
 PVC 상태 확인 → PV 바인딩 상태 → StorageClass 확인
+→ PV 사용량 확인 (kubelet stats API 또는 호스트 du)
+→ 70% 이상 시 디렉토리별 사용량 분석
 → describe pod (mount 에러) → 노드의 디스크 용량 확인
 ```
 
