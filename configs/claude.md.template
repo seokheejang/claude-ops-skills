@@ -22,4 +22,7 @@
 - `/rpc-health <chain>` - RPC/블록체인 노드 헬스체크
 - `/rpc-agent <endpoint> <module>` - RPC 분석 에이전트 (블록 순회, TX 집계 등)
 - `/db-ops <database>` - DB read-only 조회
+- `/helm-ops <cluster-or-chart>` - Helm 차트 검증, 릴리스 상태 조회, values 비교
+- `/terraform-ops <directory>` - Terraform state 조회, plan 분석, IaC 검증
+- `/argocd-ops <app-or-context>` - ArgoCD 앱 상태, 동기화 모니터링, 드리프트 감지
 # === claude-ops-skills:end ===
