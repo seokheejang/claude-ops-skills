@@ -28,6 +28,7 @@ make test       # Run PreToolUse hook tests
 | helm-ops | `/helm-ops <cluster-or-chart>` | Helm chart validation, release inspection, chart authoring guide |
 | terraform-ops | `/terraform-ops <directory>` | Terraform state inspection, plan analysis, IaC authoring guide |
 | argocd-ops | `/argocd-ops <app-or-context>` | ArgoCD app status, sync monitoring, drift detection, GitOps manifest authoring |
+| ralph | `/ralph [N] <task>` | Self-review loop (iterative verification, default 5 rounds) |
 
 ## Agents
 
@@ -77,7 +78,8 @@ Match priority: exact key name > alias match > partial match (prompts selection 
 │   ├── db-ops/       # DB query skill
 │   ├── helm-ops/     # Helm chart inspection + authoring guide
 │   ├── terraform-ops/ # Terraform state/plan + IaC authoring guide
-│   └── argocd-ops/   # ArgoCD monitoring + GitOps manifest authoring
+│   ├── argocd-ops/   # ArgoCD monitoring + GitOps manifest authoring
+│   └── ralph/        # Self-review loop (iterative verification)
 ├── agents/           # Sub-agent definitions
 │   ├── k8s-debugger.md
 │   ├── k8s-security-auditor.md

@@ -25,4 +25,5 @@
 - `/helm-ops <cluster-or-chart>` - Helm 차트 검증, 릴리스 상태 조회, values 비교
 - `/terraform-ops <directory>` - Terraform state 조회, plan 분석, IaC 검증
 - `/argocd-ops <app-or-context>` - ArgoCD 앱 상태, 동기화 모니터링, 드리프트 감지
+- `/ralph [N] <task>` - 자기 검증 반복 (기본 5회, 작업 완료까지 반복 검증)
 # === claude-ops-skills:end ===
