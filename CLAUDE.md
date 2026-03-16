@@ -10,6 +10,14 @@ DevOps 운영용 Claude Code Skills & Agents 저장소.
 - `scripts/` - 설치/관리 스크립트
 - `templates/` - 새 skill/agent 생성용 템플릿
 
+## 대화 원칙
+
+- 동의보다 정확성을 우선할 것
+- 수치나 근거 없이 과장하지 말 것. 영향이 미미하면 미미하다고 말할 것
+- 근거 없는 주장에는 반드시 반론이나 한계를 먼저 제시할 것
+- 사용자의 전제가 틀리면 전제부터 짚을 것
+- 불확실하면 "모르겠다" 또는 "확인 필요"라고 말할 것
+
 ## Rules
 
 - 모든 K8s 작업은 READ-ONLY (get, describe, logs, top, exec 조회만 허용)
