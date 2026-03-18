@@ -311,6 +311,31 @@ generate_clusters_yaml() {
     log_warn "  → description, namespaces 등은 필요시 수동 편집하세요"
 }
 
+# --- pre-commit hook 설치 ---
+install_precommit_hook() {
+    log_step "pre-commit hook 설치 중..."
+    local hook_source="$REPO_DIR/scripts/pre-commit.sh"
+    local hook_target="$REPO_DIR/.git/hooks/pre-commit"
+
+    if [ ! -f "$hook_source" ]; then
+        log_warn "  pre-commit.sh 없음 → 스킵"
+        return
+    fi
+
+    if [ -L "$hook_target" ] && [ "$(readlink "$hook_target")" = "$hook_source" ]; then
+        log_info "  pre-commit hook: 이미 설치됨 ✓"
+        return
+    fi
+
+    if [ -f "$hook_target" ]; then
+        log_warn "  기존 pre-commit hook 발견 → 백업 후 교체"
+        backup_file "$hook_target"
+    fi
+
+    ln -sf "$hook_source" "$hook_target"
+    log_info "  pre-commit hook 심링크 생성 완료"
+}
+
 # --- 백업 정리 (최근 N개만 보존) ---
 cleanup_backups() {
     local backup_base="$CLAUDE_DIR/backups/claude-ops-skills"
@@ -356,6 +381,9 @@ main() {
     merge_settings
     echo ""
     merge_claude_md
+    echo ""
+
+    install_precommit_hook
     echo ""
 
     log_step "백업 정리 중..."
