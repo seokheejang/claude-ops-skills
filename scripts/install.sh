@@ -311,6 +311,29 @@ generate_clusters_yaml() {
     log_warn "  → description, namespaces 등은 필요시 수동 편집하세요"
 }
 
+# --- 백업 정리 (최근 N개만 보존) ---
+cleanup_backups() {
+    local backup_base="$CLAUDE_DIR/backups/claude-ops-skills"
+    local keep=3
+
+    [ -d "$backup_base" ] || return
+
+    local count
+    count=$(find "$backup_base" -maxdepth 1 -mindepth 1 -type d | wc -l | tr -d ' ')
+
+    if [ "$count" -le "$keep" ]; then
+        log_info "  백업 ${count}개 — 정리 불필요"
+        return
+    fi
+
+    local to_delete=$((count - keep))
+    find "$backup_base" -maxdepth 1 -mindepth 1 -type d | sort | head -n "$to_delete" | while read -r dir; do
+        rm -rf "$dir"
+        log_info "  삭제: $(basename "$dir")"
+    done
+    log_info "  백업 정리 완료 (${to_delete}개 삭제, 최근 ${keep}개 보존)"
+}
+
 # --- 메인 ---
 main() {
     echo ""
@@ -333,6 +356,10 @@ main() {
     merge_settings
     echo ""
     merge_claude_md
+    echo ""
+
+    log_step "백업 정리 중..."
+    cleanup_backups
 
     echo ""
     echo "========================================"
