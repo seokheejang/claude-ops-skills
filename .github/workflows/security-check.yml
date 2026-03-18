@@ -123,35 +123,47 @@ jobs:
           fi
           echo "✅ All skills have valid structure"
 
-      # 5. Safety rule 검증 - mutating kubectl 명령어가 허용 목록에 없는지
+      # 5. Safety rule 검증 - mutating kubectl 명령어가 실행 가능한 형태로 존재하는지
       - name: Check no mutating kubectl in allowed commands
         run: |
           MUTATING="apply|delete|patch|scale|rollout|edit|create|replace|set|label|annotate|taint|cordon|drain|expose"
           FOUND=0
 
           for skill_file in skills/*/SKILL.md; do
-            # "허용 명령어" ~ "절대 금지" 사이 섹션에서 mutating 명령어 검사
-            # 허용 섹션에 mutating 명령어가 `kubectl <mutating>` 형태로 있으면 위반
-            MATCHES=$(grep -En "kubectl\s+($MUTATING)" "$skill_file" | grep -iv "금지\|절대\|never\|forbidden\|禁止" || true)
-            if [ -n "$MATCHES" ]; then
-              # 허용 섹션에서만 검사 (금지 설명 문맥은 제외)
-              while IFS= read -r line; do
-                LINE_NUM=$(echo "$line" | cut -d: -f1)
-                # 해당 라인이 금지 목록 설명이 아닌 허용/실행 컨텍스트인지 확인
-                CONTEXT=$(sed -n "$((LINE_NUM-2)),$((LINE_NUM+2))p" "$skill_file")
-                if echo "$CONTEXT" | grep -qiE "허용|allowed|execute|실행|run"; then
-                  echo "::error::Mutating kubectl command found in allowed section of $skill_file:$LINE_NUM"
-                  echo "$line"
-                  FOUND=1
-                fi
-              done <<< "$MATCHES"
-            fi
+            # kubectl <mutating> 패턴 검색
+            MATCHES=$(grep -En "kubectl\s+($MUTATING)" "$skill_file" || true)
+            [ -z "$MATCHES" ] && continue
+
+            while IFS= read -r line; do
+              LINE_NUM=$(echo "$line" | cut -d: -f1)
+              LINE_CONTENT=$(echo "$line" | cut -d: -f2-)
+
+              # 부정문/금지 맥락이면 스킵 (안내 목적)
+              if echo "$LINE_CONTENT" | grep -qiE "금지|절대|never|forbidden|실행하지|하지 않|안 함|안내만|텍스트로 안내"; then
+                continue
+              fi
+
+              # 주석(#으로 시작)이면서 "실행하지 않음" 맥락이면 스킵
+              if echo "$LINE_CONTENT" | grep -qE '^\s*#' && echo "$LINE_CONTENT" | grep -qiE "실행하지|안내"; then
+                continue
+              fi
+
+              # 주변 컨텍스트에서 금지 맥락 확인
+              CONTEXT=$(sed -n "$((LINE_NUM > 2 ? LINE_NUM-2 : 1)),$((LINE_NUM+2))p" "$skill_file")
+              if echo "$CONTEXT" | grep -qiE "금지|절대|forbidden|never|실행하지|하지 않음|안내만|텍스트로"; then
+                continue
+              fi
+
+              echo "::error::Mutating kubectl command in $skill_file:$LINE_NUM"
+              echo "$line"
+              FOUND=1
+            done <<< "$MATCHES"
           done
 
           if [ $FOUND -eq 1 ]; then
             exit 1
           fi
-          echo "✅ No mutating kubectl commands in allowed sections"
+          echo "✅ No mutating kubectl commands in executable context"
 
       # 6. IP/호스트 하드코딩 검사
       - name: Check no hardcoded IPs
