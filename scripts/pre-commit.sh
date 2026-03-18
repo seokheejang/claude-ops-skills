@@ -34,7 +34,11 @@ REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || echo ".")"
 CLUSTERS_YAML="$REPO_ROOT/skills/k8s-ops/clusters.yaml"
 infra_names=""
 if [ -f "$CLUSTERS_YAML" ]; then
-    infra_names=$(grep -E "^  [a-zA-Z]" "$CLUSTERS_YAML" | sed 's/:.*//' | tr -d ' ' | paste -sd '|' -)
+    # 일반적인 단어(config, default 등)와 6자 미만 키는 오탐 방지를 위해 제외
+    infra_names=$(grep -E "^  [a-zA-Z]" "$CLUSTERS_YAML" | sed 's/:.*//' | tr -d ' ' \
+        | grep -vE '^(config|default|local|test|prod|dev|staging)$' \
+        | awk 'length >= 6' \
+        | paste -sd '|' -)
 fi
 
 echo "=== 보안 체크리스트 ==="
