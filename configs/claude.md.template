@@ -2,36 +2,14 @@
 # Managed by claude-ops-skills - DO NOT EDIT between markers
 # Run: <repo-path>/scripts/install.sh
 
-## 대화 원칙
-
-- 동의보다 정확성을 우선할 것
-- 수치나 근거 없이 과장하지 말 것. 영향이 미미하면 미미하다고 말할 것
-- 근거 없는 주장에는 반드시 반론이나 한계를 먼저 제시할 것
-- 사용자의 전제가 틀리면 전제부터 짚을 것
-- 불확실하면 "모르겠다" 또는 "확인 필요"라고 말할 것
-
 ## K8s 안전 규칙 (CRITICAL - 절대 위반 금지)
 
 **kubectl 명령어는 반드시 READ-ONLY로만 사용할 것.**
 
 - 허용: `get`, `describe`, `logs`, `top`, `exec ... curl/wget` (조회 목적)
 - **절대 금지**: `apply`, `delete`, `patch`, `scale`, `rollout restart`, `edit`, `create`, `replace`, `set`, `label`, `annotate`, `taint`, `cordon`, `drain`, `expose`
-- K8s 리소스를 읽는 행위는 별도 허락 없이 진행 가능
 - K8s 리소스를 수정/변경/삭제하는 행위는 **어떤 상황에서도 절대 금지**
 - 사용자가 명시적으로 변경을 요청하더라도, 직접 명령어를 실행하지 말고 실행할 명령어를 텍스트로 안내할 것
 
 ⚠️ 이 규칙은 모든 kubeconfig, 모든 네임스페이스, 모든 클러스터에 예외 없이 적용된다.
-
-## Available Skills
-
-- `/k8s-ops <cluster>` - K8s read-only 조회 (get, describe, logs, top)
-- `/k8s-security <cluster>` - K8s 보안 점검 (RBAC, NetworkPolicy, Pod Security 감사)
-- `/ssh-ops <host>` - SSH 서버 인스펙션
-- `/rpc-health <chain>` - RPC/블록체인 노드 헬스체크
-- `/rpc-agent <endpoint> <module>` - RPC 분석 에이전트 (블록 순회, TX 집계 등)
-- `/db-ops <database>` - DB read-only 조회
-- `/helm-ops <cluster-or-chart>` - Helm 차트 검증, 릴리스 상태 조회, values 비교
-- `/terraform-ops <directory>` - Terraform state 조회, plan 분석, IaC 검증
-- `/argocd-ops <app-or-context>` - ArgoCD 앱 상태, 동기화 모니터링, 드리프트 감지
-- `/ralph [N] <task>` - 자기 검증 반복 (기본 5회, 작업 완료까지 반복 검증)
 # === claude-ops-skills:end ===
