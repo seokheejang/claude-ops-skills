@@ -157,5 +157,6 @@ To disable, remove the `Stop` section from `~/.claude/settings.json`:
 
 ### Architecture & Patterns
 
+- [affaan-m/everything-claude-code](https://github.com/affaan-m/everything-claude-code) - Production-grade AI harness (agents, skills, hooks, AgentShield, instincts)
 - [wshobson/agents](https://github.com/wshobson/agents) - Claude Code plugin/agent architecture
 - [claude-code-auto-approve](https://github.com/oryband/claude-code-auto-approve) - PreToolUse hook with compound command parsing (shfmt AST)

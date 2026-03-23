@@ -100,9 +100,9 @@ def get_part_value:
   if (type == "object" | not) then ""
   elif .Type == "Lit" then .Value // ""
   elif .Type == "DblQuoted" then
-    "\"" + ([.Parts[]? | get_part_value] | join("")) + "\""
+    ([.Parts[]? | get_part_value] | join(""))
   elif .Type == "SglQuoted" then
-    "'" + (.Value // "") + "'"
+    (.Value // "")
   elif .Type == "ParamExp" then
     "$" + (.Param.Value // "")
   elif .Type == "CmdSubst" then "$(..)"
@@ -178,8 +178,8 @@ JQEOF
 
 # --- 복합 명령 판별 ---
 needs_compound_parse() {
-  # 쉘 메타문자가 있으면 복합 명령 (리다이렉트 >, >> 포함)
-  [[ "$1" == *['|&;`>']* || "$1" == *'$('* || "$1" == *'<('* ]]
+  # 쉘 메타문자가 있으면 복합 명령 (리다이렉트 >, >>, 서브셸 () 포함)
+  [[ "$1" == *['|&;`>()']* || "$1" == *'$('* || "$1" == *'<('* ]]
 }
 
 # --- 환경변수 prefix 제거 후 명령 비교 ---
@@ -192,17 +192,32 @@ strip_env_vars() {
   echo "$stripped"
 }
 
+# --- wrapper 명령 (env, sudo, command, builtin) 제거 ---
+strip_wrappers() {
+  local cmd="$1"
+  local stripped="$cmd"
+  while [[ "$stripped" =~ ^(env|sudo|command|builtin)[[:space:]]+(.*) ]]; do
+    stripped="${BASH_REMATCH[2]}"
+  done
+  echo "$stripped"
+}
+
 # --- prefix 매칭 ---
 matches_list() {
   local full_command="$1"
   shift
   local prefixes=("$@")
 
-  # 원본 + 환경변수 제거 버전 모두 체크
-  local stripped
+  # 원본 + 환경변수 제거 + wrapper 제거 버전 모두 체크
+  local stripped wrapped
   stripped=$(strip_env_vars "$full_command")
+  wrapped=$(strip_wrappers "$full_command")
+  local env_and_wrap
+  env_and_wrap=$(strip_wrappers "$stripped")
   local candidates=("$full_command")
   [ "$stripped" != "$full_command" ] && candidates+=("$stripped")
+  [ "$wrapped" != "$full_command" ] && candidates+=("$wrapped")
+  [ "$env_and_wrap" != "$full_command" ] && [ "$env_and_wrap" != "$stripped" ] && [ "$env_and_wrap" != "$wrapped" ] && candidates+=("$env_and_wrap")
 
   for cmd in "${candidates[@]}"; do
     for prefix in "${prefixes[@]}"; do
@@ -235,14 +250,66 @@ parse_compound() {
   jq -r "$SHFMT_JQ_FILTER" <<< "$ast" 2>/dev/null || return 1
 }
 
+# --- 간접 실행 명령 추출 (bash -c, sh -c, eval) ---
+extract_indirect_commands() {
+  local cmd="$1"
+  # bash -c "cmd" / sh -c "cmd" 패턴
+  if [[ "$cmd" =~ ^(bash|sh)[[:space:]]+-c[[:space:]]+(.*) ]]; then
+    local inner="${BASH_REMATCH[2]}"
+    inner="${inner#\"}" ; inner="${inner%\"}"
+    inner="${inner#\'}" ; inner="${inner%\'}"
+    echo "$inner"
+    return
+  fi
+  # eval "cmd" 패턴
+  if [[ "$cmd" =~ ^eval[[:space:]]+(.*) ]]; then
+    local inner="${BASH_REMATCH[1]}"
+    inner="${inner#\"}" ; inner="${inner%\"}"
+    inner="${inner#\'}" ; inner="${inner%\'}"
+    echo "$inner"
+    return
+  fi
+}
+
+# --- bash/sh + redirect (heredoc/herestring) 감지 ---
+is_shell_with_redirect() {
+  local cmd="$1"
+  [[ "$cmd" =~ ^(bash|sh)([[:space:]]|$) ]]
+}
+
+# --- 따옴표 제거 (단순 명령용) ---
+strip_quotes() {
+  local cmd="$1"
+  echo "$cmd" | sed "s/['\"]//g"
+}
+
 # --- 메인 로직 ---
 
 # 단순 명령 (쉘 메타문자 없음) → 직접 체크
 if ! needs_compound_parse "$COMMAND"; then
-  if is_denied "$COMMAND"; then
+  # 따옴표 제거 버전도 deny 체크
+  UNQUOTED=$(strip_quotes "$COMMAND")
+  if is_denied "$COMMAND" || is_denied "$UNQUOTED"; then
     block "차단된 명령입니다"
   fi
+  # 간접 실행 (bash -c, eval) 내부 명령 deny 체크
+  INDIRECT=$(extract_indirect_commands "$COMMAND")
+  if [ -z "$INDIRECT" ]; then
+    INDIRECT=$(extract_indirect_commands "$UNQUOTED")
+  fi
+  if [ -n "$INDIRECT" ]; then
+    INDIRECT_UNQUOTED=$(strip_quotes "$INDIRECT")
+    if is_denied "$INDIRECT" || is_denied "$INDIRECT_UNQUOTED"; then
+      block "간접 실행에 차단된 명령이 포함되어 있습니다: $INDIRECT"
+    fi
+    exit 1  # 간접 실행은 allow 판단 불가 → 위임
+  fi
+  # bash/sh + herestring/heredoc → 위임
+  if is_shell_with_redirect "$COMMAND" && [[ "$COMMAND" == *'<'* ]]; then
+    exit 1  # 위임
+  fi
   is_allowed "$COMMAND" && approve
+  is_allowed "$UNQUOTED" && approve
   exit 1  # 판단 불가 → 위임
 fi
 
@@ -255,16 +322,41 @@ done < <(parse_compound "$COMMAND")
 # 파싱 실패 또는 빈 결과 → 위임 (안전하지 않은 것을 승인하지 않음)
 [ ${#EXTRACTED[@]} -eq 0 ] && exit 1
 
-# 하나라도 deny → block
+# 하나라도 deny → block (간접 실행 내부 명령도 검증)
 for cmd in "${EXTRACTED[@]}"; do
   if is_denied "$cmd"; then
     block "복합 명령에 차단된 서브 명령이 포함되어 있습니다: $cmd"
+  fi
+  # bash -c / sh -c / eval 내부 명령도 deny 체크
+  local_inner=$(extract_indirect_commands "$cmd")
+  if [ -n "$local_inner" ]; then
+    if is_denied "$local_inner"; then
+      block "간접 실행에 차단된 명령이 포함되어 있습니다: $local_inner"
+    fi
+  fi
+  # bash/sh + redirect 패턴 → 위임 (내부 명령 판단 불가)
+  if is_shell_with_redirect "$cmd" && [[ "$COMMAND" == *'<'* || "$COMMAND" == *'<<'* ]]; then
+    exit 1  # 위임
   fi
 done
 
 # 모든 서브 명령이 allow → approve
 all_allowed=true
 for cmd in "${EXTRACTED[@]}"; do
+  # 변수 확장($)이 포함된 명령은 런타임에서만 결정 → 위임
+  if [[ "$cmd" == *'$'* ]]; then
+    all_allowed=false
+    break
+  fi
+  # 간접 실행 명령은 내부를 재귀 검증
+  local_inner=$(extract_indirect_commands "$cmd")
+  if [ -n "$local_inner" ]; then
+    if ! is_allowed "$local_inner"; then
+      all_allowed=false
+      break
+    fi
+    continue
+  fi
   if ! is_allowed "$cmd"; then
     all_allowed=false
     break

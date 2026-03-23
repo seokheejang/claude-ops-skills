@@ -9,3 +9,4 @@
 
 # 클러스터 정보는 로컬에서만 생성 (install.sh가 ~/.kube/ 스캔하여 자동 생성)
 skills/k8s-ops/clusters.yaml
+*.bak
