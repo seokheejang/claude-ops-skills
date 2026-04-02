@@ -68,6 +68,9 @@
       "Bash(gh release view*)",
 
       "Bash(cd *)",
+      "Bash(chmod +x *)",
+      "Bash(chmod 644 *)",
+      "Bash(chmod 755 *)",
       "Bash(ls*)",
       "Bash(find *)",
       "Bash(which *)",

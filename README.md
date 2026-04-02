@@ -143,7 +143,7 @@ To disable, remove the `Stop` section from `~/.claude/settings.json`:
 
 ## Reference
 
-### DevOps Skills (helm-ops, terraform-ops, argocd-ops 구현 참고)
+### DevOps Skills
 
 - [antonbabenko/terraform-skill](https://github.com/antonbabenko/terraform-skill) - Terraform/OpenTofu best practices skill (testing, modules, CI/CD, production patterns)
 - [akin-ozer/cc-devops-skills](https://github.com/akin-ozer/cc-devops-skills) - 31 DevOps skills (Helm/Terraform/K8s generator+validator pairs, severity classification)
