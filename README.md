@@ -155,12 +155,12 @@ To disable, remove the `Stop` section from `~/.claude/settings.json`:
 
 ### Diagram & Visualization
 
-- [mermaid-to-excalidraw](https://mermaid-to-excalidraw.vercel.app/) - Mermaid → Excalidraw 변환 웹앱 (`mmdraw` 스킬 출력물 변환용)
+- [mermaid-to-excalidraw](https://mermaid-to-excalidraw.vercel.app/) - Mermaid → Excalidraw web converter (used with `mmdraw` skill output)
 
 ### Compound Engineering
 
-- [EveryInc/compound-engineering-plugin](https://github.com/EveryInc/compound-engineering-plugin) - Compound Engineering 공식 플러그인 (Plan→Work→Review→Compound)
-- [Compound Engineering: How Every Codes With Agents](https://every.to/chain-of-thought/compound-engineering-how-every-codes-with-agents) - 원본 아티클 (Kieran Klaassen, 2025)
+- [EveryInc/compound-engineering-plugin](https://github.com/EveryInc/compound-engineering-plugin) - Official Compound Engineering plugin (Plan→Work→Review→Compound)
+- [Compound Engineering: How Every Codes With Agents](https://every.to/chain-of-thought/compound-engineering-how-every-codes-with-agents) - Original article (Kieran Klaassen, 2025)
 
 ### Claude Code Ecosystem
 
