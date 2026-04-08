@@ -5,13 +5,21 @@ claude-ops-skills 작업 이력 및 다음 작업 관리.
 
 ## 작업 이력
 
+### v0.6 — mmdraw + compound 스킬 추가 (2026-04-08)
+
+- [03-mmdraw-compound-skills.md](archive/03-mmdraw-compound-skills.md) 작업 문서
+- `mmdraw` 스킬 추가: 소스/문서 분석 → Mermaid 다이어그램 생성 (문법 검증 포함)
+- `compound` 스킬 추가: Compound Engineering 기반 작업 종합 (학습 축적, 문서 정리, CHANGELOG 연동)
+- `docs/learnings/`, `docs/archive/`, `docs/diagrams/` 디렉토리 구조 도입
+- Excalidraw JSON 직접 생성 방식 시도 후 폐기 → Mermaid 기반으로 전환 (학습 기록 참조)
+
 ### v0.5 — GitHub Actions Security Check (2026-03-09)
 - `.github/workflows/security-check.yml` 추가: PR/push 시 자동 보안 검사
 - 6개 체크 항목: 금지 파일, 개인 경로, credential, skill 구조, mutating kubectl, 하드코딩 IP
 - CLAUDE.md 보안 체크리스트를 CI로 자동화
 
 ### v0.4 — K8s Security Audit + Cluster Aliases (2026-03-09)
-- [02-skill-quality-improvement.md](02-skill-quality-improvement.md) (K8s Security Audit / Cluster Aliases 섹션)
+- [02-skill-quality-improvement.md](archive/02-skill-quality-improvement.md) (K8s Security Audit / Cluster Aliases 섹션)
 - `k8s-security` skill 추가: 7개 보안 도메인 점검 (RBAC, NetworkPolicy, Pod Security, Container Config, Secrets/SA, Services, Image Security)
 - `k8s-security-auditor` agent 추가: 종합 보안 감사 워크플로우 (위험도 분석, 상관관계 분석, 개선 가이드)
 - Cluster aliases 기능: `clusters.yaml`에 `aliases` 필드 추가, 짧은 이름으로 클러스터 지정 가능
@@ -26,13 +34,13 @@ claude-ops-skills 작업 이력 및 다음 작업 관리.
 - 참고: oryband/claude-code-auto-approve
 
 ### v0.2 — Skills & Agents 품질 개선 (2026-03-08)
-- [02-skill-quality-improvement.md](02-skill-quality-improvement.md)
+- [02-skill-quality-improvement.md](archive/02-skill-quality-improvement.md)
 - 4개 skill SKILL.md 체계적 워크플로우로 개선 (When to Use, Step-by-Step, Troubleshooting, 판정 기준)
 - 2개 agent 정의 강화 (Investigation Protocol, Severity Levels, Report Format)
 - 참고: wshobson/agents, akin-ozer/cc-devops-skills
 
 ### v0.1 — 초기 설정 (2026-03-08)
-- [01-setup-handoff.md](01-setup-handoff.md)
+- [01-setup-handoff.md](archive/01-setup-handoff.md)
 - 프로젝트 구조 생성 (skills, agents, configs, scripts, templates)
 - install.sh / uninstall.sh / update.sh 작성
 - clusters.yaml .gitignore 처리 + install.sh 자동 생성

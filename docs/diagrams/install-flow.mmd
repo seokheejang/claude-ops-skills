@@ -1,0 +1,64 @@
+flowchart TB
+    START(("install.sh")) --> DEP_CHECK["check_dependencies"]
+
+    DEP_CHECK --> DEP_OK{"jq + shfmt ?"}
+    DEP_OK -- "missing" --> DEP_FAIL["ERROR: brew install 안내"]
+    DEP_OK -- "OK" --> GEN_CLUSTER
+
+    subgraph GEN["1. generate_clusters_yaml"]
+        GEN_CLUSTER["~/.kube/ 스캔"] --> KUBE_EXISTS{"kubeconfig found?"}
+        KUBE_EXISTS -- "No" --> KUBE_COPY["clusters.yaml.example 복사"]
+        KUBE_EXISTS -- "Yes" --> YAML_EXISTS{"clusters.yaml exists?"}
+        YAML_EXISTS -- "No" --> YAML_NEW["clusters.yaml 신규 생성"]
+        YAML_EXISTS -- "Yes" --> YAML_DIFF["기존 vs ~/.kube/ 비교"]
+        YAML_DIFF --> YAML_CHANGED{"변경 있음?"}
+        YAML_CHANGED -- "No" --> YAML_SKIP["변경 없음 스킵"]
+        YAML_CHANGED -- "Yes" --> YAML_SYNC["추가/제거 반영 + 백업"]
+    end
+
+    GEN --> SKILLS
+
+    subgraph SKILLS["2. install_skills"]
+        SKILL_LOOP["skills/* 순회"] --> LINK_CHECK{"~/.claude/skills/ 에 이미 존재?"}
+        LINK_CHECK -- "올바른 심링크" --> LINK_OK["스킵"]
+        LINK_CHECK -- "다른 심링크/디렉토리" --> LINK_BACKUP["백업 후 교체"]
+        LINK_CHECK -- "없음" --> LINK_CREATE["ln -s 심링크 생성"]
+    end
+
+    SKILLS --> SETTINGS
+
+    subgraph SETTINGS["3. merge_settings"]
+        TPL_READ["settings.json.template 로드"] --> SETTINGS_EXISTS{"settings.json exists?"}
+        SETTINGS_EXISTS -- "No" --> SETTINGS_NEW["템플릿에서 신규 생성"]
+        SETTINGS_EXISTS -- "Yes" --> SETTINGS_BACKUP["백업"]
+        SETTINGS_BACKUP --> SETTINGS_MERGE["jq -s 로 머지"]
+        SETTINGS_MERGE --> PERM_MERGE["permissions allow/deny 합산 + unique"]
+        PERM_MERGE --> HOOK_MERGE["hooks 이벤트별 합산 + unique_by command"]
+    end
+
+    SETTINGS --> CLAUDEMD
+
+    subgraph CLAUDEMD["4. merge_claude_md"]
+        MD_READ["claude.md.template 로드"] --> MD_EXISTS{"CLAUDE.md exists?"}
+        MD_EXISTS -- "No" --> MD_NEW["템플릿 복사로 생성"]
+        MD_EXISTS -- "Yes" --> MD_MARKER{"마커 블록 있음?"}
+        MD_MARKER -- "Yes" --> MD_REPLACE["마커 사이 내용 교체"]
+        MD_MARKER -- "No" --> MD_APPEND["기존 뒤에 추가"]
+    end
+
+    CLAUDEMD --> HOOK
+
+    subgraph HOOK["5. install_precommit_hook"]
+        HOOK_CHECK{"pre-commit hook 상태?"} -- "이미 심링크" --> HOOK_OK["스킵"]
+        HOOK_CHECK -- "다른 파일 존재" --> HOOK_REPLACE["백업 후 심링크"]
+        HOOK_CHECK -- "없음" --> HOOK_LINK["ln -sf 심링크 생성"]
+    end
+
+    HOOK --> CLEANUP
+
+    subgraph CLEANUP["6. cleanup_backups"]
+        BACKUP_COUNT{"백업 3개 초과?"} -- "No" --> BACKUP_KEEP["유지"]
+        BACKUP_COUNT -- "Yes" --> BACKUP_DEL["오래된 것부터 삭제"]
+    end
+
+    CLEANUP --> DONE(("설치 완료"))

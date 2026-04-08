@@ -29,6 +29,8 @@ make test       # Run PreToolUse hook tests
 | terraform-ops | `/terraform-ops <directory>` | Terraform state inspection, plan analysis, IaC authoring guide |
 | argocd-ops | `/argocd-ops <app-or-context>` | ArgoCD app status, sync monitoring, drift detection, GitOps manifest authoring |
 | ralph | `/ralph [N] <task>` | Self-review loop (iterative verification, default 5 rounds) |
+| mmdraw | `/mmdraw <target>` | Mermaid diagram generator from source/docs analysis (→ Excalidraw manual conversion) |
+| compound | `/compound [completed\|paused] <desc>` | Work synthesis - learnings capture, doc lifecycle, CHANGELOG update |
 
 ## Agents
 
@@ -79,7 +81,9 @@ Match priority: exact key name > alias match > partial match (prompts selection 
 │   ├── helm-ops/     # Helm chart inspection + authoring guide
 │   ├── terraform-ops/ # Terraform state/plan + IaC authoring guide
 │   ├── argocd-ops/   # ArgoCD monitoring + GitOps manifest authoring
-│   └── ralph/        # Self-review loop (iterative verification)
+│   ├── ralph/        # Self-review loop (iterative verification)
+│   ├── mmdraw/       # Mermaid diagram generator (→ Excalidraw conversion)
+│   └── compound/     # Work synthesis - learnings, doc lifecycle, CHANGELOG
 ├── agents/           # Sub-agent definitions
 │   ├── k8s-debugger.md
 │   ├── k8s-security-auditor.md
@@ -148,6 +152,15 @@ To disable, remove the `Stop` section from `~/.claude/settings.json`:
 - [antonbabenko/terraform-skill](https://github.com/antonbabenko/terraform-skill) - Terraform/OpenTofu best practices skill (testing, modules, CI/CD, production patterns)
 - [akin-ozer/cc-devops-skills](https://github.com/akin-ozer/cc-devops-skills) - 31 DevOps skills (Helm/Terraform/K8s generator+validator pairs, severity classification)
 - [ahmedasmar/devops-claude-skills](https://github.com/ahmedasmar/devops-claude-skills) - GitOps workflows (ArgoCD 3.x, Flux, drift detection, ApplicationSet patterns)
+
+### Diagram & Visualization
+
+- [mermaid-to-excalidraw](https://mermaid-to-excalidraw.vercel.app/) - Mermaid → Excalidraw 변환 웹앱 (`mmdraw` 스킬 출력물 변환용)
+
+### Compound Engineering
+
+- [EveryInc/compound-engineering-plugin](https://github.com/EveryInc/compound-engineering-plugin) - Compound Engineering 공식 플러그인 (Plan→Work→Review→Compound)
+- [Compound Engineering: How Every Codes With Agents](https://every.to/chain-of-thought/compound-engineering-how-every-codes-with-agents) - 원본 아티클 (Kieran Klaassen, 2025)
 
 ### Claude Code Ecosystem
 

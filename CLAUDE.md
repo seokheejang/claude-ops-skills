@@ -59,3 +59,8 @@ Conventional Commits 사용:
 5. **IP/호스트/URL 확인**: 실제 서버 IP, 내부 도메인, 엔드포인트가 하드코딩되지 않았는지 확인
 6. **credentials 확인**: password, token, secret, API key 등이 포함되지 않았는지 확인
 7. **.gitignore 확인**: `clusters.yaml`, `.env`, `settings.local.json` 등이 여전히 제외 상태인지 확인
+
+## Learnings
+
+작업 중 발견한 패턴, 해결법, 의사결정 근거는 `docs/learnings/`에 축적됨.
+새 작업 시작 전 관련 학습 기록이 있는지 확인하면 삽질을 줄일 수 있음.
