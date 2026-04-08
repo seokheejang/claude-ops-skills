@@ -3,14 +3,41 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Skills%20%26%20Agents-blueviolet)](https://github.com/anthropics/claude-code)
 
-Claude Code Skills & Agents for DevOps workflows.
-Reusable skills for K8s troubleshooting, Helm/Terraform IaC authoring, ArgoCD GitOps monitoring, blockchain RPC monitoring, DB inspection, and SSH server checks.
+Claude Code slash-command skills and agents for DevOps daily operations.
+For DevOps engineers and SREs who manage Kubernetes clusters, Helm charts, Terraform IaC, ArgoCD GitOps, and blockchain infrastructure — run read-only inspections, security audits, and best-practice research without leaving the terminal.
+
+All operations are **READ-ONLY by default**. Mutating commands are blocked at the settings level and never executed.
+
+## Table of Contents
+
+- [Quick Start](#quick-start)
+- [Skills](#skills)
+- [Agents](#agents)
+- [Prerequisites](#prerequisites)
+- [Structure](#structure)
+- [Safety](#safety)
+- [Reference](#reference)
 
 ## Quick Start
 
 ```bash
-make install    # Install (symlinks + settings merge + CLAUDE.md merge)
-make update     # Update (git pull + reinstall)
+git clone https://github.com/seokheejang/claude-ops-skills.git
+cd claude-ops-skills
+make install
+```
+
+Then restart Claude Code and try:
+
+```
+/k8s-ops my-cluster          # Inspect a K8s cluster
+/helm-ops my-release          # Check Helm release status
+/best-practice EKS CNI choice # Research industry best practices
+```
+
+Other commands:
+
+```bash
+make update     # git pull + reinstall
 make uninstall  # Uninstall
 make test       # Run PreToolUse hook tests
 ```
@@ -31,6 +58,7 @@ make test       # Run PreToolUse hook tests
 | ralph | `/ralph [N] <task>` | Self-review loop (iterative verification, default 5 rounds) |
 | mmdraw | `/mmdraw <target>` | Mermaid diagram generator from source/docs analysis (→ Excalidraw manual conversion) |
 | compound | `/compound [completed\|paused] <desc>` | Work synthesis - learnings capture, doc lifecycle, CHANGELOG update |
+| best-practice | `/best-practice <topic or question>` | DevOps best practice research (industry patterns, community wisdom, alternative comparison) |
 
 ## Agents
 
@@ -43,7 +71,22 @@ make test       # Run PreToolUse hook tests
 | helm-chart-auditor | Comprehensive Helm chart audit (lint, security, best practices) |
 | argocd-drift-detector | Systematic ArgoCD drift detection across apps and clusters |
 
-## Cluster Aliases
+## Prerequisites
+
+| Tool | Required | Purpose |
+|------|----------|---------|
+| [Claude Code](https://github.com/anthropics/claude-code) | Yes | CLI runtime for skills |
+| `make` | Yes | Install/update/uninstall |
+| `kubectl` | For K8s skills | K8s cluster inspection |
+| `helm` | For Helm skills | Chart validation, release inspection |
+| `terraform` | For Terraform skills | State inspection, plan analysis |
+| `argocd` | For ArgoCD skills | App status, sync monitoring |
+| `ssh` | For SSH skills | Server inspection |
+
+> Only `Claude Code` and `make` are required. Other tools are needed only for their respective skills.
+
+<details>
+<summary><strong>Cluster Aliases</strong></summary>
 
 Add an `aliases` field in `clusters.yaml` to use short names for clusters:
 
@@ -67,6 +110,8 @@ Match priority: exact key name > alias match > partial match (prompts selection 
 
 > `clusters.yaml` is included in `.gitignore` so real cluster names are never exposed in the public repo. See `clusters.yaml.example` for configuration examples.
 
+</details>
+
 ## Structure
 
 ```
@@ -83,7 +128,8 @@ Match priority: exact key name > alias match > partial match (prompts selection 
 │   ├── argocd-ops/   # ArgoCD monitoring + GitOps manifest authoring
 │   ├── ralph/        # Self-review loop (iterative verification)
 │   ├── mmdraw/       # Mermaid diagram generator (→ Excalidraw conversion)
-│   └── compound/     # Work synthesis - learnings, doc lifecycle, CHANGELOG
+│   ├── compound/     # Work synthesis - learnings, doc lifecycle, CHANGELOG
+│   └── best-practice/ # DevOps best practice research
 ├── agents/           # Sub-agent definitions
 │   ├── k8s-debugger.md
 │   ├── k8s-security-auditor.md
@@ -102,7 +148,8 @@ Match priority: exact key name > alias match > partial match (prompts selection 
 └── templates/        # Templates for new skills/agents
 ```
 
-## How Install Works
+<details>
+<summary><strong>How Install Works</strong></summary>
 
 1. **Backup**: Saves existing files to `~/.claude/backups/claude-ops-skills/{timestamp}/`
 2. **Symlink skills**: `skills/*` → `~/.claude/skills/*` (skips if already linked)
@@ -110,7 +157,10 @@ Match priority: exact key name > alias match > partial match (prompts selection 
 4. **Merge CLAUDE.md**: Marker-based block management (`# === claude-ops-skills:start/end ===`)
 5. **settings.local.json**: Never modified
 
-## Task Complete Notification (macOS)
+</details>
+
+<details>
+<summary><strong>Task Complete Notification (macOS)</strong></summary>
 
 After `make install`, a **Stop hook** is registered that sends a macOS notification when Claude finishes a task. If you're already looking at VSCode or iTerm, the notification is suppressed.
 
@@ -131,6 +181,8 @@ To disable, remove the `Stop` section from `~/.claude/settings.json`:
 ```
 
 > This feature is macOS only (`osascript`). On Linux, the Stop hook will silently fail with no side effects.
+
+</details>
 
 ## Safety
 

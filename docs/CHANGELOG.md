@@ -5,6 +5,12 @@ claude-ops-skills 작업 이력 및 다음 작업 관리.
 
 ## 작업 이력
 
+### v0.7 — best-practice Skill + README 개선 (2026-04-08)
+
+- [04-best-practice-readme.md](archive/04-best-practice-readme.md) 작업 문서
+- `best-practice` 스킬 추가: 업계 사례/커뮤니티/공식 문서 기반 체계적 리서치 (5단계 워크플로우, 구조화된 출력)
+- README.md 개선: Description 확장, Table of Contents, Prerequisites, Quick Start 확장, 세부 섹션 접이식 처리
+
 ### v0.6 — mmdraw + compound 스킬 추가 (2026-04-08)
 
 - [03-mmdraw-compound-skills.md](archive/03-mmdraw-compound-skills.md) 작업 문서
