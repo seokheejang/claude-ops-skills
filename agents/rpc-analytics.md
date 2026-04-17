@@ -48,7 +48,56 @@ read-only JSON-RPC만 사용. 금지: sendTransaction, sendRawTransaction, sign,
 전체 순회 성능참고: ~790만 블록, ~1,976 HTTP요청, ~20분, ~6,500블록/s.
 Python 스크립트: `skills/rpc-agent/scripts/cosmos_total_tx.py`
 
-**TODO 모듈**: gas-analysis, address-activity, block-time-analysis
+## Module: gas-analysis
+
+블록 범위의 가스 사용량/가격 통계. **EVM 전용** (Cosmos는 gas 모델이 tx 단위라 블록 수준 집계 불가 → 미지원).
+
+**호출**: `eth_getBlockByNumber(blockHex, false)` 배치. `false`는 full tx 미포함 (가벼움).
+블록 객체에서 추출: `gasUsed`, `gasLimit`, `baseFeePerGas`(EIP-1559), `timestamp`, `number`.
+트랜잭션 수준 `gasPrice` 분석이 명시적으로 요청된 경우만 `true`로 재호출 (비용 큼, 경고 표시).
+
+**집계**:
+- `gasUsed`: 평균 / 중앙값 / p95 / 최대 / 최소
+- `utilization`: `gasUsed / gasLimit` — 평균, 최대 (utilization 높으면 혼잡)
+- `baseFeePerGas` (EIP-1559 체인): 추이 — 구간을 10등분하여 평균 샘플 또는 시작/끝/최대/최소
+- 비-EIP-1559 체인: `baseFeePerGas` 누락 — utilization만 보고
+
+**출력**: 
+- 요약 테이블 (평균/p95/최대 gasUsed, utilization)
+- baseFee 추이 (EIP-1559) — 10포인트 샘플 또는 시작/최대/끝
+- Top 5 full blocks (utilization 기준)
+
+**주의**: 범위 내 EIP-1559 이전 블록이 섞여 있으면 baseFee 구간 분리 보고. `baseFeePerGas` 키 부재로 감지.
+
+## Module: block-time-analysis
+
+블록 생성 간격 통계.
+
+**EVM**: `eth_getBlockByNumber(blockHex, false)` 배치 → `timestamp`(Unix sec, hex)와 `number` 수집. 인접 블록간 `timestamp[n] - timestamp[n-1]` 로 interval 계산.
+
+**Cosmos**: `/blockchain?minHeight=X&maxHeight=Y` 배치 → `block_metas[].header.time` (RFC3339/ISO8601). date 파싱으로 epoch sec 변환. 간격 계산.
+- 파싱: `date -u -j -f '%Y-%m-%dT%H:%M:%S' "${time%.*}Z" +%s` (macOS) 또는 `date -u -d "$time" +%s` (Linux) — 실행 환경에 따라 분기
+
+**집계** (공통):
+- 평균 / 중앙값 / stddev / 최대 / 최소 (초 단위)
+- 이상치: `interval > mean + 2*stddev` 인 블록 (정지/혼잡 신호)
+- 체인 목표값 비교 (EVM ~12s, Cosmos ~6s 등 — 알려진 경우만 참고 표시)
+
+**출력**:
+- 요약 테이블 (평균/중앙값/stddev/최대/최소)
+- 이상치 블록 목록 (상위 10개: block number, interval, timestamp)
+- 간격 분포: `<목표*0.5`, `목표 ±50%`, `>목표*2`, `>목표*5` 버킷 카운트
+
+**주의**: 첫 블록은 이전 블록 조회 1회 추가 필요 (interval 계산). 범위 경계 처리.
+
+## Module: address-activity (미구현 — 스펙 보류)
+
+주소별 tx/transfer/컨트랙트 호출 집계. 구현 복잡도 높음:
+- EVM: `eth_getLogs` + topic 필터로 transfer 추적, 특정 주소 from/to 필터는 풀 tx 스캔 필요
+- Cosmos: `tx_search`는 대규모 체인에서 타임아웃 (Troubleshooting 참조)
+- 인덱서(Etherscan, SubQuery) 없이 RPC 단독으로는 큰 범위에 비효율적
+
+사용자가 이 모듈을 요청하면: 목적(특정 주소의 최근 활동 vs 전체 주소 랭킹 등)을 먼저 확인하고, 인덱서 사용을 권장하거나 범위를 극히 좁게 제한.
 
 ## Chain Adapters
 

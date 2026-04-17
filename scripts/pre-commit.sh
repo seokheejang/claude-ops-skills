@@ -75,8 +75,15 @@ if echo "$staged_content" | grep -E "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" | grep -qv
     failed=true
 fi
 
-# 5. credentials
-check "시크릿/토큰 노출" "(password|secret|token|api_key|apikey|api-key)\s*[:=]\s*['\"][^'\"]{8,}"
+# 5. credentials (bash 변수 참조 $VAR, ${VAR}, ${!VAR}는 이름 참조일 뿐 값 아님 → 제외)
+cred_pattern="(password|secret|token|api_key|apikey|api-key)\s*[:=]\s*['\"][^'\"]{8,}"
+cred_matches=$(echo "$staged_content" | grep -inE "$cred_pattern" | grep -vE '\$\{?!?[A-Z_][A-Z0-9_]*\}?' || true)
+if [ -n "$cred_matches" ]; then
+    echo -e "${RED}[FAIL]${NC} 시크릿/토큰 노출"
+    echo "$cred_matches" | head -5
+    echo ""
+    failed=true
+fi
 
 # 6. 민감 파일 커밋 시도 (.env, credentials, 키 파일)
 sensitive_pattern='\.env$|/\.env$|\.env\.|credentials|\.pem$|\.key$|\.p12$|\.pfx$|\.jks$|id_rsa|id_ed25519|id_ecdsa'

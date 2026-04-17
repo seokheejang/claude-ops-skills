@@ -1,0 +1,36 @@
+# Database targets mapping
+# Maps friendly names to connection metadata + credential env-var pointers.
+# NO SECRETS in this file — passwords are referenced by env-var name only.
+#
+# 실제 사용:
+#   1. cp db-targets.yaml.example db-targets.yaml
+#   2. db-targets.yaml 수정 (host, user, database, password_env 등)
+#   3. password_env에 지정된 환경변수에 실제 비밀번호 설정
+#      (shell rc, direnv, 1Password CLI 등)
+#
+# db-targets.yaml은 .gitignore에 포함되어 repo에 커밋되지 않음.
+
+targets:
+  my-mysql:
+    engine: mysql                       # mysql | mariadb | postgresql
+    host: "localhost"
+    port: 3306
+    user: "readonly_user"
+    database: "appdb"
+    password_env: "MY_MYSQL_PASSWORD"   # 환경변수 이름만. 값 아님.
+    aliases: ["dev-mysql", "dev"]       # /db-ops dev → my-mysql
+    description: "dev MySQL (read-only account)"
+    notes: "granted SELECT only"
+
+  my-pg:
+    engine: postgresql
+    host: "localhost"
+    port: 5432
+    user: "readonly_user"
+    database: "appdb"
+    password_env: "MY_PG_PASSWORD"
+    aliases: ["dev-pg"]
+    description: "dev PostgreSQL"
+    sslmode: "prefer"                   # postgresql only: disable|require|prefer|verify-ca|verify-full
+
+default_target: my-mysql

@@ -5,6 +5,15 @@ claude-ops-skills 작업 이력 및 다음 작업 관리.
 
 ## 작업 이력
 
+### v0.8 — ssh-ops / db-ops / rpc-agent 강화 (2026-04-17)
+
+- [05-skill-hardening.md](archive/05-skill-hardening.md) 작업 문서
+- `ssh-ops`: SSH 연결 정책 명시 (BatchMode, ConnectTimeout=10, StrictHostKeyChecking=accept-new, ServerAliveInterval=30) — 자동화 흐름에서 prompt/hang/MITM 방지
+- `db-ops`: `db-targets.yaml` 도입 (clusters.yaml 패턴 차용), `password_env`로 비밀번호 간접 참조, Target Resolution + MySQL/PG 연결 패턴 명시, `.gitignore` + CI forbidden list 3중 방어
+- `rpc-agent`: `gas-analysis`(EVM 전용) / `block-time-analysis`(EVM+Cosmos) 구현 스펙 완성. `address-activity`는 RPC 단독 비효율로 "인덱서 권장" scope-out
+- pre-commit / CI credential 검사: bash 변수 참조(`${!VAR}` 등) false positive 제외
+- [claude-code.md](learnings/claude-code.md) 학습 기록: SKILL.md는 세션 시작 시 캐시됨 → 같은 세션에서 수정 후 테스트 불가
+
 ### v0.7 — best-practice Skill + README 개선 (2026-04-08)
 
 - [04-best-practice-readme.md](archive/04-best-practice-readme.md) 작업 문서

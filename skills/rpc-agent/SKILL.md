@@ -31,17 +31,19 @@ allowed-tools: Bash, Read, Grep, Glob, Skill
 ```
 /rpc-agent http://localhost:8545 block-tx-count --last 100
 /rpc-agent http://localhost:8545 block-tx-count --from 19500000 --to 19500100
-/rpc-agent https://rpc.example.com block-tx-count
+/rpc-agent http://localhost:8545 gas-analysis --last 200
+/rpc-agent http://localhost:8545 block-time-analysis --last 500
+/rpc-agent http://localhost:26657 block-time-analysis --last 1000
 ```
 
 ## Available Modules
 
-| Module | 설명 | 상태 |
-|--------|------|------|
-| `block-tx-count` | 블록 범위 트랜잭션 수 집계 | 사용 가능 |
-| `gas-analysis` | 가스 사용량/가격 추이 분석 | TODO |
-| `address-activity` | 주소별 활동 분석 | TODO |
-| `block-time-analysis` | 블록 생성 시간 통계 | TODO |
+| Module | 설명 | 지원 체인 | 상태 |
+|--------|------|-----------|------|
+| `block-tx-count` | 블록 범위 트랜잭션 수 집계 | EVM, Cosmos | 사용 가능 |
+| `gas-analysis` | gasUsed / utilization / baseFee 추이 | EVM only | 사용 가능 |
+| `block-time-analysis` | 블록 생성 간격 통계 + 이상치 | EVM, Cosmos | 사용 가능 |
+| `address-activity` | 주소별 활동 분석 | — | 스펙 보류 (인덱서 권장) |
 
 ## Workflow
 

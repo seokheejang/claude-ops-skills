@@ -17,6 +17,7 @@ jobs:
         run: |
           FORBIDDEN_FILES=(
             "skills/k8s-ops/clusters.yaml"
+            "skills/db-ops/db-targets.yaml"
             ".env"
             ".envrc"
             ".claude/settings.local.json"
@@ -67,6 +68,7 @@ jobs:
           )
           FOUND=0
           for p in "${PATTERNS[@]}"; do
+            # bash 변수 참조 ($VAR, ${VAR}, ${!VAR})는 값이 아닌 이름이므로 제외
             MATCHES=$(grep -rEin "$p" \
               --include="*.md" --include="*.yaml" --include="*.yml" \
               --include="*.json" --include="*.sh" \
@@ -74,7 +76,7 @@ jobs:
               --exclude-dir=".claude" \
               --exclude="*.example" \
               --exclude="security-check.yml" \
-              . || true)
+              . | grep -vE '\$\{?!?[A-Z_][A-Z0-9_]*\}?' || true)
             if [ -n "$MATCHES" ]; then
               echo "::warning::Potential credential pattern found:"
               echo "$MATCHES"
