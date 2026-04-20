@@ -49,8 +49,44 @@ allowed-tools: Bash, Read, Write, Edit, Grep, Glob, Agent
 
 ```
 📄 <filename>.mmd 저장 완료
-→ https://mermaid-to-excalidraw.vercel.app/ 에서 Excalidraw 변환 가능
+🖼  <filename>.png 렌더링 완료
+→ 편집 필요 시 https://mermaid-to-excalidraw.vercel.app/ 에서 Excalidraw 변환 가능
 ```
+
+### 6. PNG 렌더링
+
+`.mmd` 와 **같은 경로에 `.png`** 도 생성한다.
+
+**우선순위: 로컬 설치 > npx**
+
+로컬에 `mmdc` 가 설치되어 있으면 바로 실행:
+
+```bash
+mmdc -i <file>.mmd -o <file>.png -b white -w 1400
+```
+
+없으면 `which mmdc` 로 확인 후 `npx` 로 fallback:
+
+```bash
+npx -y -p @mermaid-js/mermaid-cli mmdc -i <file>.mmd -o <file>.png -b white -w 1400
+```
+
+자주 쓰면 글로벌 설치가 효율적 (`npx` 는 매번 캐시 확인 · 느린 실행):
+
+```bash
+npm i -g @mermaid-js/mermaid-cli
+```
+
+옵션:
+
+- `-b white` — 배경 흰색 (기본 투명)
+- `-w 1400` — 가로 해상도. 복잡한 아키텍처는 `-w 1800`
+
+주의:
+
+- `npx` 첫 실행은 puppeteer + Chromium 다운로드로 60-120초. Bash timeout 180s 이상 필요
+- 두 번째부터는 캐시로 빠름
+- 실패하면 `.mmd` 만이라도 남겨두고 사용자에게 실패 사유 보고
 
 ---
 
@@ -227,3 +263,5 @@ end
 - 저장 경로: `docs/diagrams/` 에 저장 (없으면 `mkdir -p`로 생성)
 - Markdown 코드 펜스 (````mermaid`) 없이 순수 Mermaid 문법만 저장
 - 변환 안내 메시지를 반드시 포함
+- `.mmd` 와 짝을 이루는 `.png` 를 동일 경로에 함께 생성 (렌더 실패 시 `.mmd` 만 남김)
+- 렌더 우선순위: 로컬 `mmdc` > `npx -y -p @mermaid-js/mermaid-cli mmdc`. 자주 쓰면 `npm i -g @mermaid-js/mermaid-cli`
