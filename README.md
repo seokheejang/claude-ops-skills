@@ -59,6 +59,8 @@ make test       # Run PreToolUse hook tests
 | mmdraw | `/mmdraw <target>` | Mermaid diagram generator from source/docs analysis (→ Excalidraw manual conversion) |
 | compound | `/compound [completed\|paused] <desc>` | Work synthesis - learnings capture, doc lifecycle, CHANGELOG update |
 | best-practice | `/best-practice <topic or question>` | DevOps best practice research (industry patterns, community wisdom, alternative comparison) |
+| grill-me | `/grill-me` | Stress-test a plan or design via relentless one-by-one interview until shared understanding |
+| write-a-skill | `/write-a-skill` | Interview-based scaffolding for new skills — enforces description/length/security conventions |
 
 ## Agents
 
@@ -129,7 +131,9 @@ Match priority: exact key name > alias match > partial match (prompts selection 
 │   ├── ralph/        # Self-review loop (iterative verification)
 │   ├── mmdraw/       # Mermaid diagram generator (→ Excalidraw conversion)
 │   ├── compound/     # Work synthesis - learnings, doc lifecycle, CHANGELOG
-│   └── best-practice/ # DevOps best practice research
+│   ├── best-practice/ # DevOps best practice research
+│   ├── grill-me/     # Plan/design stress-test via relentless interview
+│   └── write-a-skill/ # Meta-skill: scaffold new skills with conventions
 ├── agents/           # Sub-agent definitions
 │   ├── k8s-debugger.md
 │   ├── k8s-security-auditor.md
