@@ -135,8 +135,10 @@ Match priority: exact key name > alias match > partial match (prompts selection 
 │   ├── argocd-ops/   # ArgoCD monitoring + GitOps manifest authoring
 │   │   └── references/ # GitOps deep-dive (ArgoCD/Flux install, AppSet, sealed secrets)
 │   ├── ralph/        # Self-review loop (iterative verification)
+│   │   └── references/ # Domain checklists + FAIL/NOTE judgement policy
 │   ├── mmdraw/       # Mermaid diagram generator (→ Excalidraw conversion)
 │   ├── compound/     # Work synthesis - learnings, doc lifecycle, CHANGELOG
+│   │   └── references/ # 3 topics (work-doc, learnings, changelog)
 │   ├── best-practice/ # DevOps best practice research
 │   ├── grill-me/     # Plan/design stress-test via relentless interview
 │   └── write-a-skill/ # Meta-skill: scaffold new skills with conventions

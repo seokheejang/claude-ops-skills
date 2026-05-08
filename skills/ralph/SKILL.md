@@ -7,8 +7,7 @@ allowed-tools: Bash, Read, Write, Edit, Grep, Glob, Agent
 
 # Ralph - Self-Review Loop
 
-작업 수행 후 스스로 검증하고, 이슈 발견 시 수정 → 재검증을 반복하는 자기 검증 루프.
-사용자가 `/ralph`를 호출할 때만 동작하며, 일반 대화에는 영향 없음.
+작업 수행 후 스스로 검증하고, 이슈 발견 시 수정 → 재검증을 반복. `/ralph` 호출 시에만 동작. 상세 체크리스트와 판정 정책은 [references/](references/) 참조.
 
 ## Arguments
 
@@ -19,9 +18,16 @@ allowed-tools: Bash, Read, Write, Edit, Grep, Glob, Agent
 3. 작업 설명이 없으면 직전 사용자 요청과 그에 대한 Claude 응답(마지막 1턴)에서 작업을 이어받음
 
 예시:
-- `/ralph settings.json 보안 검토` → 5회 반복, settings.json 보안 검토
+- `/ralph settings.json 보안 검토` → 5회 반복
 - `/ralph 3 deny 규칙 누락 검사` → 3회 반복
-- `/ralph 방금 작업 재검증` → 5회 반복, 직전 작업 검증
+- `/ralph 방금 작업 재검증` → 직전 작업 검증
+
+## Reference Guide
+
+| Topic | File | Load When |
+|-------|------|-----------|
+| 도메인별 체크리스트 (코드/DevOps/문서/범용) | [references/checklists.md](references/checklists.md) | Phase 2 — 작업 도메인 감지 후 해당 체크리스트만 로드 |
+| FAIL/NOTE 판정 + Collaborative 원칙 | [references/policy.md](references/policy.md) | Phase 3 — 매 라운드 판정 시 |
 
 ## Execution Protocol
 
@@ -31,33 +37,7 @@ allowed-tools: Bash, Read, Write, Edit, Grep, Glob, Agent
 
 ### Phase 2: 도메인 감지 및 체크리스트 선택
 
-작업 내용에 따라 적절한 검증 체크리스트를 자동 선택:
-
-**코드 작성/수정:**
-- [ ] 문법 에러 없음 (lint/build 통과)
-- [ ] 보안 취약점 없음 (injection, hardcoded secrets, XSS)
-- [ ] 엣지 케이스 처리됨
-- [ ] 기존 코드와 일관된 스타일
-- [ ] 불필요한 코드 없음 (over-engineering 방지)
-
-**DevOps/IaC (K8s, Helm, Terraform, ArgoCD):**
-- [ ] READ-ONLY 안전 규칙 준수 (mutating 명령어 없음)
-- [ ] settings.json deny 규칙과 SKILL.md 금지 목록 일치
-- [ ] 하드코딩된 시크릿/경로/IP 없음
-- [ ] 권한이 최소 범위로 제한됨
-- [ ] 예시 값이 제네릭명 사용 (my-cluster, my-app 등)
-- [ ] 커밋 대상이면 CLAUDE.md 보안 체크리스트 7항목도 검증
-
-**설정/문서:**
-- [ ] 다른 파일과 일관성 유지
-- [ ] 누락 항목 없음
-- [ ] 오타/포맷 오류 없음
-- [ ] 마크다운 테이블/링크 정상
-
-**범용 (위에 해당 없을 때):**
-- [ ] 사용자 요구사항 완전히 충족
-- [ ] 결과물이 정확하고 완성됨
-- [ ] 불필요한 부작용 없음
+작업 내용에 따라 [references/checklists.md](references/checklists.md)에서 해당 도메인의 체크리스트만 로드. 도메인 감지 신호는 그 파일 상단 표 참조. 복수 해당 시 모두 적용.
 
 ### Phase 3: 반복 검증 루프
 
@@ -79,43 +59,38 @@ allowed-tools: Bash, Read, Write, Edit, Grep, Glob, Agent
 
 **루프 규칙:**
 - [FAIL] 항목 발견 → 즉시 수정 → 다음 라운드에서 재검증
-- [NOTE] 항목 → 수정하지 않음. 리포트에 참고사항으로만 표기
+- [NOTE] 항목 → 수정하지 않음. 리포트에만 표기
 - 이전 라운드에서 [PASS]한 항목은 재검증 스킵 (토큰 절약)
-- 2회 연속 동일 [FAIL] 반복 → 사용자에게 판단 요청
+- 2회 연속 동일 [FAIL] → 사용자 판단 요청 (상세: [policy.md](references/policy.md))
 - 전체 [PASS] → 남은 라운드 스킵하고 즉시 완료
 
 ### Phase 4: 최종 리포트
 
 ```
 === Ralph Complete (N rounds) ===
-
-요약:
-- 총 라운드: N/M
-- 발견 이슈: X건
-- 수정 완료: Y건
-- 미해결: Z건 (있을 경우 상세 목록)
-
+요약: 총 N/M 라운드, 발견 X건, 수정 Y건, 미해결 Z건
 변경 파일:
-- file1.md — 변경 내용 요약
-- file2.json — 변경 내용 요약
+- file1.md — 변경 요약
+- file2.json — 변경 요약
 ```
 
 ## Token Efficiency Rules
 
-이 스킬은 토큰 예산이 제한된 환경을 고려하여 설계됨:
+1. **조기 종료**: 첫 라운드 통과 시 즉시 완료
+2. **증분 검증**: 이전 [PASS] 항목은 재검사 스킵
+3. **간결한 출력**: 변경점 중심, 반복 OK 메시지 최소화
+4. **빈 루프 방지**: 수정할 것 없으면 루프 중단
+5. **부분 로드**: 매칭된 도메인 체크리스트만 로드
 
-1. **조기 종료**: 첫 라운드에서 이슈 없으면 즉시 완료 (1회로 끝남)
-2. **증분 검증**: 이전에 통과한 항목은 재검사하지 않음
-3. **간결한 출력**: 변경점 중심, 반복적인 OK 메시지 최소화
-4. **빈 루프 방지**: 수정할 것이 없으면 루프 중단
+## Scope and Pairing
 
-## Collaborative Behavior
+ralph는 **L1+L2 (라인/함수 동작 검증)**에 특화. 다음 영역은 ralph 범위 밖이므로 별도 도구로 후속 검토:
 
-Ralph는 일방적으로 수정하지 않고, 사용자와 함께 찾는다:
+| 검토 영역 | 도구 |
+|----------|------|
+| 코드 단순화/중복 통합 | code-simplifier agent (Anthropic plugin) |
+| 버그/로직/보안/품질 (L3) | code-reviewer agent (도입 예정 — `agents/code-reviewer.md`) |
+| 설계 결정/트레이드오프 검토 (L4) | `/grill-me` |
+| 아키텍처 결정 | 사람 리뷰, ADR 작성 |
 
-**FAIL 판정 기준: "이거 안 고치면 실제로 터지나?"**
-- 터지는 것 → [FAIL] 즉시 수정: 의존성/순서 버그, 문법 오류, 존재하지 않는 함수 호출, 치환 안 되는 변수, 보안 취약점
-- 터지지 않는 것 → [NOTE] 수정 안 함: 변수명 리네이밍, 로그 메시지 개선, "혹시 모르니까" 방어 코드, 스타일/포맷 통일
-- 판단이 필요한 이슈 (설계 결정, 트레이드오프) → 사용자에게 선택지 제시
-- 불확실한 이슈 → "이건 의도된 건가요?" 형태로 질문
-- 매 라운드 결과를 공유하며 사용자가 중간에 중단할 수 있음을 안내
+ralph가 [NOTE]로 보고한 항목 중 구조적 이슈는 위 도구로 후속 검토 권장.
