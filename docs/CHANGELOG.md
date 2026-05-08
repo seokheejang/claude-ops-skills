@@ -5,6 +5,17 @@ claude-ops-skills 작업 이력 및 다음 작업 관리.
 
 ## 작업 이력
 
+### v0.9 — Skill 분할 + 신규 스킬 + best-practice 보완 (2026-05-08)
+
+- [06-skill-split-and-best-practice-enhancements.md](archive/06-skill-split-and-best-practice-enhancements.md) 작업 문서
+- 신규 스킬 3개: `grill-me` (mattpocock/skills, MIT), `write-a-skill` (메타 스킬, 100줄 룰 + 보안 강제), `k8s-craft` (K8s manifest 작성/설계, k8s-ops와 페어링)
+- 4개 SKILL.md 100줄 룰 적용: mmdraw 267→97, compound 247→97, best-practice 167→86, ralph 121→96. 분할 단위 = REFERENCE.md (1~2 토픽) / references/ (3+ 토픽) / scripts/ (결정론적 작업)
+- 외부 자료 흡수 (Jeffallan/claude-skills, MIT): k8s-craft references/ 8개, k8s-ops/argocd-ops/helm-ops에 troubleshooting/gitops/helm-charts 깊이 보강. fake credential 자동 placeholder 치환
+- best-practice 6개 보완: AI 콘텐츠 식별, Citation 검증, 출처 독립성, 도메인별 시의성, learnings 우선 검색, 결과 저장 권유
+- ralph 페어링 정의: L1+L2 한정 명시. L3는 code-simplifier/code-reviewer, L4는 grill-me/사람으로 위임
+- pre-commit 훅 강화: SKILL.md frontmatter 검증, credential 정규식에 `${{ ... }}`/placeholder/manifest 키워드 예외, IP 정규식에 공개 DNS + RFC 5737 문서용 대역 예외
+- [claude-code.md](learnings/claude-code.md) 학습 2건 추가: 분할 단위 결정 트리, 자기 검증 도구 다층 매핑
+
 ### v0.8 — ssh-ops / db-ops / rpc-agent 강화 (2026-04-17)
 
 - [05-skill-hardening.md](archive/05-skill-hardening.md) 작업 문서
@@ -65,7 +76,8 @@ claude-ops-skills 작업 이력 및 다음 작업 관리.
 ## 다음 작업 후보 (Backlog)
 
 ### 우선순위 높음
-- [ ] **skill 실전 테스트**: 각 skill을 실제 운영 환경에서 호출하여 워크플로우 검증
+- [ ] **code-reviewer agent 도입**: ralph가 못 다루는 L3 영역(bugs/logic/security/quality) 검토. Anthropic plugin (`feature-dev` 또는 `pr-review-toolkit`)의 code-reviewer agent를 베이스로 우리 컨벤션(한국어, CLAUDE.md 보안 7항목, K8s READ-ONLY) 통합. 도입 후 ralph SKILL.md의 *"도입 예정"* placeholder 제거. 상세 절차: [archive/06-skill-split-and-best-practice-enhancements.md](archive/06-skill-split-and-best-practice-enhancements.md) 핸드오프 섹션
+- [ ] **skill 실전 테스트**: 각 skill을 실제 운영 환경에서 호출하여 워크플로우 검증 (특히 best-practice 6개 보완 실전 검증, k8s-craft Safety Rules 강제 확인)
 - [ ] **agent 실전 테스트**: k8s-debugger, rpc-monitor를 실제 이슈 상황에서 사용해보기
 
 ### 중간 우선순위
