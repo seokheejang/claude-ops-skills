@@ -46,7 +46,8 @@ make test       # Run PreToolUse hook tests
 
 | Skill | Command | Description |
 |-------|---------|-------------|
-| k8s-ops | `/k8s-ops <cluster>` | K8s cluster inspection (get, describe, logs, top) |
+| k8s-ops | `/k8s-ops <cluster>` | K8s cluster inspection (get, describe, logs, top) — paired with k8s-craft for authoring |
+| k8s-craft | `/k8s-craft <resource or topic>` | K8s manifest authoring & design (workloads, networking, storage, RBAC, NetworkPolicy, cost, operators, mesh, multi-cluster) |
 | k8s-security | `/k8s-security <cluster>` | K8s security audit (RBAC, NetworkPolicy, Pod Security) |
 | ssh-ops | `/ssh-ops <host>` | SSH server inspection |
 | rpc-health | `/rpc-health <endpoint>` | Blockchain RPC node health check |
@@ -119,6 +120,9 @@ Match priority: exact key name > alias match > partial match (prompts selection 
 ```
 ├── skills/           # Symlinked to ~/.claude/skills/
 │   ├── k8s-ops/      # K8s inspection skill + clusters.yaml (auto-generated locally)
+│   │   └── references/ # Troubleshooting deep-dive
+│   ├── k8s-craft/    # K8s manifest authoring & design (paired with k8s-ops)
+│   │   └── references/ # 8 topics (workloads, networking, storage, ...)
 │   ├── k8s-security/ # K8s security audit skill
 │   ├── ssh-ops/      # SSH inspection skill
 │   ├── rpc-health/   # RPC health check skill
@@ -126,8 +130,10 @@ Match priority: exact key name > alias match > partial match (prompts selection 
 │   │   └── scripts/  # Bundled analysis scripts (cosmos_total_tx.py, etc.)
 │   ├── db-ops/       # DB query skill
 │   ├── helm-ops/     # Helm chart inspection + authoring guide
+│   │   └── references/ # Chart authoring deep-dive (structure, values, templates, hooks, testing)
 │   ├── terraform-ops/ # Terraform state/plan + IaC authoring guide
 │   ├── argocd-ops/   # ArgoCD monitoring + GitOps manifest authoring
+│   │   └── references/ # GitOps deep-dive (ArgoCD/Flux install, AppSet, sealed secrets)
 │   ├── ralph/        # Self-review loop (iterative verification)
 │   ├── mmdraw/       # Mermaid diagram generator (→ Excalidraw conversion)
 │   ├── compound/     # Work synthesis - learnings, doc lifecycle, CHANGELOG

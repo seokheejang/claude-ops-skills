@@ -54,6 +54,12 @@ Helm 릴리스 조회 및 차트 검증 전용 skill. READ-ONLY 명령어만 실
 - **dependency 에러**: `Chart.yaml` dependencies 확인, `helm dependency list`. 해결: `helm dependency update` 텍스트 안내
 - **template 렌더링 실패**: 에러 메시지 파일:라인 확인, values 필수값 누락, `helm template --debug`
 
+## Reference
+
+| Topic | File | Load When |
+|-------|------|-----------|
+| Helm chart authoring deep-dive (구조, values, templates, hooks, dependencies, testing, repository, sub-charts) | [references/helm-charts.md](references/helm-charts.md) | 차트 신규 작성, values 설계, hooks/test 패턴, 사내 chart repo 구축 |
+
 ## Output
 
 클러스터/차트 대상 먼저 명시. 릴리스는 테이블(Name/NS/Revision/Status/Chart/AppVersion). 비정상 **굵게** 최상단. 차트 검증은 severity별 정리. 조치는 텍스트 안내.

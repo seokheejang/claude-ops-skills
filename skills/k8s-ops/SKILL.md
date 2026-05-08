@@ -50,6 +50,14 @@ Kubernetes 클러스터 조회 전용 skill. READ-ONLY 명령어만 실행.
 - **Svc 접속불가**: `get endpoints` 비어있으면 selector 불일치, Pod Ready/containerPort=targetPort 확인, NetworkPolicy
 - **PVC 부족**: kubelet stats 또는 du, retention 정책. local-path는 quota 없음 — 호스트 디스크도 확인
 
+## Reference
+
+| Topic | File | Load When |
+|-------|------|-----------|
+| Troubleshooting (kubectl debug, logs, events, common issues) | [references/troubleshooting.md](references/troubleshooting.md) | 깊은 디버깅, 다양한 에러 패턴 매칭 필요 |
+
+설계/manifest 작성은 [k8s-craft](../k8s-craft/) 사용.
+
 ## Output
 
 클러스터/KUBECONFIG 명시. 비정상 항목 최상단 요약. PVC는 테이블(PVC/NS/용량/사용량/사용률/상태). severity 태그. 조치는 텍스트 안내.
