@@ -59,7 +59,7 @@ make test       # Run PreToolUse hook tests
 | ralph | `/ralph [N] <task>` | Self-review loop (iterative verification, default 5 rounds) |
 | mmdraw | `/mmdraw <target>` | Mermaid diagram generator from source/docs analysis (→ Excalidraw manual conversion) |
 | compound | `/compound [completed\|paused] <desc>` | Work synthesis - learnings capture, doc lifecycle, CHANGELOG update |
-| best-practice | `/best-practice <topic or question>` | DevOps best practice research (industry patterns, community wisdom, alternative comparison) |
+| best-practice | `/best-practice <topic or question>` | DevOps best practice research with Citation verification, AI content detection, source independence, domain-aware recency |
 | grill-me | `/grill-me` | Stress-test a plan or design via relentless one-by-one interview until shared understanding |
 | write-a-skill | `/write-a-skill` | Interview-based scaffolding for new skills — enforces description/length/security conventions |
 
@@ -140,6 +140,7 @@ Match priority: exact key name > alias match > partial match (prompts selection 
 │   ├── compound/     # Work synthesis - learnings, doc lifecycle, CHANGELOG
 │   │   └── references/ # 3 topics (work-doc, learnings, changelog)
 │   ├── best-practice/ # DevOps best practice research
+│   │   └── references/ # 3 topics (sources, verification, output)
 │   ├── grill-me/     # Plan/design stress-test via relentless interview
 │   └── write-a-skill/ # Meta-skill: scaffold new skills with conventions
 ├── agents/           # Sub-agent definitions
