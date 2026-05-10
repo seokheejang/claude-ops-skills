@@ -9,7 +9,8 @@
       "Bash(KUBECONFIG=* kubectl describe *)",
       "Bash(KUBECONFIG=* kubectl logs *)",
       "Bash(KUBECONFIG=* kubectl top *)",
-      "Bash(KUBECONFIG=* kubectl exec *)"
+      "Bash(KUBECONFIG=* kubectl exec *)",
+      "Edit(~/.claude/skills/transfer-en/**)"
     ],
     "deny": [
       "Bash(kubectl apply *)",

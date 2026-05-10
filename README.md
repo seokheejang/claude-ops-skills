@@ -62,6 +62,7 @@ make test       # Run PreToolUse hook tests
 | best-practice | `/best-practice <topic or question>` | DevOps best practice research with Citation verification, AI content detection, source independence, domain-aware recency |
 | grill-me | `/grill-me` | Stress-test a plan or design via relentless one-by-one interview until shared understanding |
 | write-a-skill | `/write-a-skill` | Interview-based scaffolding for new skills — enforces description/length/security conventions |
+| transfer-en | `/transfer-en <한국어>` | Korean → easy conversational English (CEFR A2) with casual alternative + auto-accumulating learning notes |
 
 ## Agents
 
@@ -142,7 +143,8 @@ Match priority: exact key name > alias match > partial match (prompts selection 
 │   ├── best-practice/ # DevOps best practice research
 │   │   └── references/ # 3 topics (sources, verification, output)
 │   ├── grill-me/     # Plan/design stress-test via relentless interview
-│   └── write-a-skill/ # Meta-skill: scaffold new skills with conventions
+│   ├── write-a-skill/ # Meta-skill: scaffold new skills with conventions
+│   └── transfer-en/  # Korean → easy English translator + learning note system (local-only learning.md/pending.md)
 ├── agents/           # Sub-agent definitions
 │   ├── k8s-debugger.md
 │   ├── k8s-security-auditor.md

@@ -13,4 +13,7 @@ skills/k8s-ops/clusters.yaml
 # DB 타겟 정보 (host/user/password_env 포함) — 로컬 전용
 skills/db-ops/db-targets.yaml
 
+# transfer-en 사용자 데이터 — 개인 학습 데이터, 로컬 전용
+skills/transfer-en/public/
+
 *.bak
