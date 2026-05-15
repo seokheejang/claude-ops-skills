@@ -41,6 +41,8 @@ allowed-tools: Read, Write, Edit
   → 사용 상황: <언제 쓰는지>
 ```
 
+**중요**: 번역 결과 앞에 `▎`, `|`, `>` 같은 인용/장식 문자를 절대 붙이지 말 것. 사용자가 그대로 복사해서 Slack/이메일에 붙여넣을 수 있어야 함. 번역문은 평문 한 줄로만 출력.
+
 **학습 포인트 조건**:
 - 단순 인사/감사 (Hi, Thanks) → 생략
 - phrasal verb, idiom, 한국어 직역 안 되는 패턴 → **반드시 추가**
@@ -60,9 +62,9 @@ allowed-tools: Read, Write, Edit
 
 1. **번역 시**: 학습 포인트 → `public/pending.md`에 append (날짜 + 표현 + 뜻 + 상황)
 2. **번역 전**: `public/learning.md` 읽기 → 거기 있는 표현은 학습 포인트 생략
-3. **pending.md ≥ 10개**: 번역 끝에 안내
+3. **pending.md ≥ 20개**: 번역 끝에 안내
    ```
-   📚 public/pending.md에 10개 누적. /transfer-en --review 로 정리하세요.
+   📚 public/pending.md에 20개 누적. /transfer-en --review 로 정리하세요.
    ```
 4. **`--review`**: pending 항목 카테고리별 제시 → 사용자가 선택 → 선택분만 `public/learning.md`로 이관 → `public/pending.md` 비움
 
