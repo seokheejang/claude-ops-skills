@@ -50,6 +50,7 @@ make test       # Run PreToolUse hook tests
 | k8s-craft | `/k8s-craft <resource or topic>` | K8s manifest authoring & design (workloads, networking, storage, RBAC, NetworkPolicy, cost, operators, mesh, multi-cluster) |
 | k8s-security | `/k8s-security <cluster>` | K8s security audit (RBAC, NetworkPolicy, Pod Security) |
 | ssh-ops | `/ssh-ops <host>` | SSH server inspection |
+| troubleshoot | `/troubleshoot <symptom>` | Evidence-based failure-diagnosis discipline — every judgment cites observed output, fixes cross-checked from multiple angles, side effects enumerated, remediation is operator-confirmed manual guidance only |
 | rpc-health | `/rpc-health <endpoint>` | Blockchain RPC node health check |
 | rpc-agent | `/rpc-agent <endpoint> <module>` | RPC analytics agent (block traversal, tx counting) |
 | db-ops | `/db-ops <database>` | DB read-only queries (SELECT, SHOW only) |
@@ -126,6 +127,7 @@ Match priority: exact key name > alias match > partial match (prompts selection 
 │   │   └── references/ # 8 topics (workloads, networking, storage, ...)
 │   ├── k8s-security/ # K8s security audit skill
 │   ├── ssh-ops/      # SSH inspection skill
+│   ├── troubleshoot/ # Evidence-based failure-diagnosis discipline (no-speculation, manual-remediation guardrails)
 │   ├── rpc-health/   # RPC health check skill
 │   ├── rpc-agent/    # RPC analytics agent entry point
 │   │   └── scripts/  # Bundled analysis scripts (cosmos_total_tx.py, etc.)
