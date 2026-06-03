@@ -60,6 +60,7 @@ make test       # Run PreToolUse hook tests
 | ralph | `/ralph [N] <task>` | Self-review loop (iterative verification, default 5 rounds) |
 | mmdraw | `/mmdraw <target>` | Mermaid diagram generator from source/docs analysis (→ Excalidraw manual conversion) |
 | compound | `/compound [completed\|paused] <desc>` | Work synthesis - learnings capture, doc lifecycle, CHANGELOG update |
+| catchup | `/catchup` | Read-only session context restore — reads git (recent commits + uncommitted) → CLAUDE.md → README → docs, briefs what was done last & where to start |
 | best-practice | `/best-practice <topic or question>` | DevOps best practice research with Citation verification, AI content detection, source independence, domain-aware recency |
 | grill-me | `/grill-me` | Stress-test a plan or design via relentless one-by-one interview until shared understanding |
 | write-a-skill | `/write-a-skill` | Interview-based scaffolding for new skills — enforces description/length/security conventions |
@@ -142,6 +143,7 @@ Match priority: exact key name > alias match > partial match (prompts selection 
 │   ├── mmdraw/       # Mermaid diagram generator (→ Excalidraw conversion)
 │   ├── compound/     # Work synthesis - learnings, doc lifecycle, CHANGELOG
 │   │   └── references/ # 3 topics (work-doc, learnings, changelog)
+│   ├── catchup/      # Session context restore (git + CLAUDE.md/README/docs)
 │   ├── best-practice/ # DevOps best practice research
 │   │   └── references/ # 3 topics (sources, verification, output)
 │   ├── grill-me/     # Plan/design stress-test via relentless interview
