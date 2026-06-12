@@ -1,21 +1,22 @@
 ---
 name: troubleshoot
-description: Evidence-based troubleshooting discipline for infra/service failures (k8s, SSH). Forbids conclusions without observed command output - judgments must cite evidence, fixes are cross-checked from multiple angles, side effects enumerated, and remediation stays operator-confirmed manual guidance, never auto-executed. Use when the user wants to diagnose a failure, find root cause with evidence, stress-test a hypothesis, says "트러블슈팅", "장애 분석", "원인 분석", "troubleshoot", or pastes logs/errors to diagnose.
+description: Evidence-based troubleshooting discipline for infra/service failures (k8s, SSH). Forbids conclusions without observed command output - judgments must cite evidence, every proposed fix is classified as symptom-blocking/mitigation/root-fix with rationale, non-obvious fixes are cross-checked against industry practice, success criteria are defined before applying, and remediation stays operator-confirmed manual guidance, never auto-executed. Use when the user wants to diagnose a failure, find root cause with evidence, stress-test a hypothesis, says "트러블슈팅", "장애 분석", "원인 분석", "troubleshoot", or pastes logs/errors to diagnose.
 argument-hint: "<현상/증상 설명>"
-allowed-tools: Read, Grep, Glob
+allowed-tools: Read, Grep, Glob, AskUserQuestion
 ---
 
 # Troubleshoot — 근거 기반 장애 진단 규율
 
-인프라/서비스 장애를 **추측 없이** 진단하는 방법론 스킬. 직접 명령을 실행하지 않는다 — 조회는 [k8s-ops](../k8s-ops/), [ssh-ops](../ssh-ops/) 등 READ-ONLY 스킬로 위임하고, 이 스킬은 **수집된 증거에 대한 추론 규율**을 강제한다. (`allowed-tools`에 Bash 없음 = 어떤 명령도 직접 실행 불가)
+인프라/서비스 장애를 **추측 없이** 진단하고, **임시 처방이 아닌 근본 원인 제거**까지 끌고 가는 방법론 스킬. 직접 명령을 실행하지 않는다 — 조회는 [k8s-ops](../k8s-ops/), [ssh-ops](../ssh-ops/) 등 READ-ONLY 스킬로, 업계 사례 조사는 [best-practice](../best-practice/)로, 학습 기록은 [compound](../compound/)로 위임하고, 이 스킬은 **증거에 대한 추론 규율과 조치의 근본성 판별**을 강제한다. (`allowed-tools`에 Bash 없음 = 어떤 명령도 직접 실행 불가)
 
 ## 절대 규칙 (위반 금지)
 
 1. **근거 없는 단정 금지.** 모든 판단은 실제로 관찰된 명령 출력에 근거한다. 출력을 본 적 없으면 "확정"이라 말하지 않는다.
 2. **관찰 / 가설 / 결론을 구분**해서 표기한다. 추론은 "가설"로 명시하고 검증 방법을 함께 제시한다.
-3. **증거가 부족하면 멈춘다.** 부족한 항목과 "이걸 확인하려면 무엇을 조회해야 하는지"를 보고하고, 빈칸을 추측으로 채우지 않는다.
+3. **증거가 부족하면 멈추고, 사용자에게 적극적으로 질문한다.** 빈칸을 추측으로 채우지 않는다. 명령으로 확인 가능한 것은 "무엇을 조회해야 하는지"를 제시하고, 명령으로 알 수 없는 것(언제부터인지, 그 시점에 무엇이 바뀌었는지, 영향 범위, 이미 시도한 조치, 환경 특이사항)은 분석을 이어가기 전에 사용자에게 직접 묻는다(AskUserQuestion). 애매한 채로 진행한 판단은 그 자체가 위반이다.
 4. **조치를 직접 실행하지 않는다.** 변경/복구 명령은 실행 가능한 형태로 적되 가이드(텍스트)로만 제공한다.
 5. **후속 조치는 작업자가 수동으로, 컨펌 후 진행.** 롤백 절차를 반드시 동봉한다.
+6. **"적용했더니 증상이 사라짐"은 근본 해결의 증거가 아니다.** 증상 소멸과 원인 제거를 구분한다 — 근본성 판별을 거치지 않은 조치는 "근본"이라 부르지 않는다.
 
 ## Evidence Ledger (보고 형식)
 
@@ -31,14 +32,40 @@ allowed-tools: Read, Grep, Glob
 - **유력** — 정황 증거는 있으나 직접 확인 안 됨 → 추가 검증 항목을 함께 명시
 - **가설** — 근거 미확보 → 검증 방법만 제시 (단정 금지)
 
+## 근본성 판별 (조치 제안 전 필수)
+
+제안하는 **모든** 조치를 셋 중 하나로 분류하고 근거를 붙인다:
+
+| 분류 | 정의 | 의무 |
+|------|------|------|
+| **차단** | 증상만 가림 (알람 mute, 재시작) | 근본 원인 미해소 — **후속 트랙을 반드시 명시** |
+| **완화** | 발생 빈도/영향 축소, 원인은 남음 | 남은 원인과 재발 조건을 명시 |
+| **근본** | 원인 자체를 제거 | 원인 제거를 입증할 증거를 명시 |
+
+- **분류가 불확실하면 단정하지 말고 판별 측정을 설계한다.** 예: "버퍼 증설이 근본인지"는 처리력 포화 여부로 갈림 → CPU/softirq/상시성 측정으로 판별.
+- **계층 매핑** — 카운터/증상이 어느 레이어(HW/드라이버/커널/앱) 것인지 명시한다. 레이어를 헷갈리면 엉뚱한 처방이 나온다.
+- **트리거 특정** — "언제부터?"를 시계열로 확정하고, 그 시점의 변경(배포/설정/트래픽)과 상관을 확인한다.
+
 ## Workflow
 
-1. **현상 수집** — 증상을 정리하고, 필요한 데이터는 k8s-ops/ssh-ops로 수집(위임)하도록 요청한다. 요약·가공 전에 **원본 출력**을 확보한다.
-2. **증거 원장 작성** — 발견마다 근거(명령+출력)를 붙인다. 근거 없는 행은 "가설"로 강등한다.
+### 진단
+
+1. **현상 수집** — 증상을 정리하고, 필요한 데이터는 k8s-ops/ssh-ops로 수집(위임)하도록 요청한다. 요약·가공 전에 **원본 출력**을 확보한다. 명령으로 알 수 없는 맥락(발생 시점, 그 시점의 변경, 영향 범위, 이미 시도한 조치)이 비어 있으면 가설을 세우기 전에 사용자에게 먼저 질문한다.
+2. **증거 원장 작성** — 발견마다 근거(명령+출력)를 붙인다. 근거 없는 행은 "가설"로 강등한다. 각 증거에 **계층**(HW/드라이버/커널/앱)을 매핑하고, **트리거 시점**을 시계열로 특정한다.
 3. **다각도 검증** — 결론 전에 *반증*을 시도한다. 대안 원인을 최소 1~2개 세우고 증거로 배제한다. 단일 증거로 단정하지 않는다.
-4. **사이드 이펙트 전수 조사** — 제안 조치가 건드리는 모든 대상(연결 워크로드, 의존 서비스, 데이터, 트래픽, 재시작·재스케줄 영향)을 나열한다. 모르면 "영향 불명 — 확인 필요"로 표기한다.
-5. **수동 조치 가이드** — 각 조치에 (a) 전제 확인 (b) 명령 (c) 예상 사이드 이펙트 (d) 롤백 절차를 붙인다. 직접 실행하지 않고, 작업자 컨펌 후 수동 진행.
+
+### 조치 제안
+
+4. **근본성 분류** — 위 표에 따라 각 조치를 차단/완화/근본으로 분류한다. 차단·완화만 제안할 경우 근본 트랙(추가 조사 또는 판별 측정)을 함께 제시한다.
+5. **사이드 이펙트 전수 조사** — 제안 조치가 건드리는 모든 대상(연결 워크로드, 의존 서비스, 데이터, 트래픽, 재시작·재스케줄 영향)을 나열한다. 모르면 "영향 불명 — 확인 필요"로 표기한다.
+6. **범용 해결책 교차검증** — 비자명한 조치는 적용 전 업계 사례를 확인한다 ([best-practice](../best-practice/) 위임). 우리 처방이 관행의 어디쯤인지, 더 나은 표준 방식(operator/선언적 관리)이 있는지 비교하고 출처를 남긴다.
+7. **수동 조치 가이드** — 각 조치에 (a) 전제 확인 (b) 명령 (c) 예상 사이드 이펙트 (d) 롤백 절차를 붙인다. 직접 실행하지 않고, 작업자 컨펌 후 수동 진행.
+
+### 조치 이후 (진단으로 끝내지 않는다)
+
+8. **사후 검증** — 적용 *전에* 성공 기준을 수치로 정의하고(예: "카운터 delta=0/min, 알람 소멸"), 적용 후 동일한 증거 규율로 검증한다. 기준 미달이면 원인 분석으로 되돌아간다.
+9. **재발 방지** — (a) **동일 클래스 전수 감사**: 같은 결함을 가진 다른 대상을 찾는다 (증상 없는 개체가 조용히 같은 문제를 가질 수 있음), (b) **영구화**: 임시 적용을 프로비저닝 표준에 편입, (c) **박제**: runbook/learnings에 기록 ([compound](../compound/) 위임).
 
 ## Output
 
-장애 요약 → Evidence Ledger → 근본 원인(확신도 명시) → 배제한 대안 → 사이드 이펙트 → 수동 조치 가이드(롤백 포함). 증거가 부족한 영역은 숨기지 말고 "근거 부족"으로 드러낸다.
+장애 요약 → Evidence Ledger(계층·트리거 포함) → 근본 원인(확신도 명시) → 배제한 대안 → 조치 목록(근본성 분류 + 업계 교차검증 출처) → 사이드 이펙트 → 수동 조치 가이드(성공 기준·롤백 포함) → 재발 방지 트랙. 증거가 부족한 영역은 숨기지 말고 "근거 부족"으로 드러낸다.
