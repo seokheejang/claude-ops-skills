@@ -11,17 +11,39 @@
 | 플러그인 | 마켓플레이스 | 용도 | 비고 |
 |----------|------------|------|------|
 | `humanize-korean` | `epoko77-ai/im-not-ai` (MIT) | AI가 쓴 한국어 글 윤문 (내용 보존, 문체만) | 커맨드: `/humanize-korean:humanize` |
+| `ponytail` | `DietrichGebert/ponytail` (MIT) | 코드 생성 *전* 과잉설계 차단 가드레일 (YAGNI·stdlib 우선·결정 사다리) | 커맨드: `/ponytail [lite\|full\|ultra\|off]`, `/ponytail-review`, `-audit`, `-debt`, `-gain` |
 
 ## 설치 방법
 
 ```
+# humanize-korean
 /plugin marketplace add epoko77-ai/im-not-ai
 /plugin install humanize-korean@im-not-ai
+
+# ponytail
+/plugin marketplace add DietrichGebert/ponytail
+/plugin install ponytail@ponytail
 ```
 
 - `/plugin ...`은 Claude Code CLI 내장 인터랙티브 커맨드 — 세션에서 직접 입력 (스크립트 자동화 불가).
 - 설치 스코프는 설치 시 선택 (user = 전체 프로젝트 / project / local). 개인용 도구는 user 스코프 권장.
 - 플러그인 스킬은 `/<plugin-name>:<skill-name>`으로 네임스페이스 → 이 repo의 `/skill-name`과 충돌 없음.
+
+## 역할 구분 (겹치는 도구)
+
+ponytail은 코드 단순화 영역에서 Claude Code **내장** 스킬과 인접하다. 언제 뭘 쓰는지:
+
+| 시점 | 도구 | 동작 |
+|------|------|------|
+| 코드 생성 **전** | `/ponytail` (full 기본) | 결정 사다리로 과잉설계를 애초에 막음 (가드레일) |
+| 변경 후, 단순화 | 내장 `/simplify` | 변경분을 재사용·간결화로 고쳐 적용 (write) |
+| 변경 후, 적발만 | `/ponytail-review` | diff의 과잉설계만 읽기 전용 리포트 (no write) |
+| 변경 후, 버그+품질 | 내장 `/code-review` | 정확성 버그까지 포함 (ponytail-review는 버그 제외) |
+
+요약: **ponytail 본체 = 생성 시점 예방, simplify/code-review = 사후 교정.** `/ponytail-review`와 `/code-review`는
+초점이 다르다 — 전자는 "뭘 지울 수 있나"만, 후자는 정확성·보안까지.
+
+> ponytail의 벤치마크(54% less code 등)는 5개 소규모 태스크 기준 — 대규모/도메인 복잡 코드로 일반화되는 수치는 아니다.
 
 ## 업데이트
 

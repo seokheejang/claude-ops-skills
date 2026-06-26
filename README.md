@@ -12,6 +12,7 @@ All operations are **READ-ONLY by default**. Mutating commands are blocked at th
 
 - [Quick Start](#quick-start)
 - [Skills](#skills)
+- [External Plugins](#external-plugins)
 - [Agents](#agents)
 - [Prerequisites](#prerequisites)
 - [Structure](#structure)
@@ -64,6 +65,17 @@ make test       # Run PreToolUse hook tests
 | grill-me | `/grill-me` | Stress-test a plan or design via relentless one-by-one interview until shared understanding |
 | write-a-skill | `/write-a-skill` | Interview-based scaffolding for new skills — enforces description/length/security conventions |
 | transfer-en | `/transfer-en <한국어>` | Korean → easy conversational English (CEFR A2) with casual alternative + auto-accumulating learning notes |
+
+## External Plugins
+
+Third-party Claude Code plugins consumed via `/plugin` (installed manually — **not** handled by `install.sh`). Kept external to receive upstream updates instead of vendoring stale copies.
+
+| Plugin | Marketplace | Use |
+|--------|-------------|-----|
+| `humanize-korean` | `epoko77-ai/im-not-ai` | De-AI Korean text (content-preserving rewrite) |
+| `ponytail` | `DietrichGebert/ponytail` | Pre-generation over-engineering guardrail (YAGNI, stdlib-first) |
+
+→ Install commands, update notes, and role-vs-builtin guidance: [docs/external-plugins.md](docs/external-plugins.md)
 
 ## Agents
 
