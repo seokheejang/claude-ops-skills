@@ -97,3 +97,43 @@ ralph FAIL 판정 기준 *"이거 안 고치면 실제로 터지나"*는 L2 적�
 - Anthropic 공식 plugin의 `code-simplifier`, `code-reviewer` agent를 그대로 쓰기보다 **베이스로 가져와서 우리 컨벤션에 맞춰 customize**하는 게 검증 부담 줄임 (옵션 C)
 - *"제대로 동작할지 모르는 도구를 그대로 신뢰"*보다 *"검증된 출발점 + 우리 환경 맞춤"*이 더 자신 있게 쓸 수 있음
 
+---
+
+## 2026-06-26 — 외부 스킬은 "베끼기 vs plugin 소비 vs submodule" 세 갈래로 결정한다
+
+**Category**: convention
+**Related**: `_disabled/humanize-ko/`, `scripts/install.sh`, 외부 repo `epoko77-ai/im-not-ai` (MIT)
+
+### 컨텍스트
+
+외부 Claude Code 스킬(`im-not-ai`의 `humanize-korean`)을 내 스킬셋에 넣으려다, *"직접 베껴 만들면 원본이 업데이트돼도 안 따라온다"*는 한계를 만났다. 실제로 경량판 `humanize-ko`를 직접 만들었으나, 원본이 71패턴/390예시 규모인 걸 확인하고 **업데이트 추적이 되는 소비 방식**으로 선회했다.
+
+### 내용
+
+외부 스킬 도입 결정 트리:
+
+```
+외부 스킬을 쓰고 싶다
+├─ 원본 그대로 + 업스트림 업데이트 받고 싶다
+│   └─ 원본 repo에 .claude-plugin/marketplace.json 있나?
+│       ├─ 있음 → /plugin marketplace add <owner/repo> + /plugin install <name>@<mkt>
+│       │         (서드파티는 auto-update 기본 OFF → /plugin marketplace update 수동, 또는 "autoUpdate": true)
+│       └─ 없음 → fork해서 marketplace.json 추가, 또는 아래 submodule
+├─ 내 repo 안에서 버전 추적하며 관리하고 싶다
+│   └─ git submodule (skills/ 또는 vendor/) — 단 커스터마이징 시 충돌, 커맨드 네임스페이스 정리 필요
+└─ 경량화/내 식 커스터마이징이 우선, 업데이트는 포기 가능
+    └─ 직접 작성 (write-a-skill). "영감만" 차용 시 출처 귀속, MIT면 LICENSE 보존
+```
+
+핵심 사실 (공식 문서, 2026-06 기준):
+- plugin은 **install.sh 심링크 모델과 별개 시스템** (`~/.claude/plugins/`에서 독립 관리). "내 repo로 가져와 관리"가 아니라 "repo 밖에서 소비"다.
+- plugin 스킬은 `/plugin-name:skill-name`으로 **네임스페이스** → 내 `~/.claude/skills/`의 `/skill-name`과 충돌 안 함. 단 **기능 중복**은 사용자 혼란이라 한쪽 제거 권장.
+- 서드파티 마켓플레이스는 auto-update 기본 OFF (공식 Anthropic 마켓플레이스만 ON).
+- `/plugin ...`은 **CLI 내장 인터랙티브 커맨드** — Claude(도구)가 대신 실행 못 함. 사용자가 직접 입력해야 함.
+
+### 왜 중요한가
+
+- 다음에 외부 스킬을 만나면 *"베낄까 말까"* 이분법이 아니라 위 3갈래로 바로 판단
+- **업데이트 추적 비용을 의사결정에 넣는다**: 직접 베끼기는 "지금 편하지만 영원히 stale". 자주 갱신되는 외부 스킬일수록 plugin/submodule이 유리
+- 기능 중복 시 한쪽을 `_disabled/`로 빼 충돌·혼란 제거 (mmdraw·humanize-ko 동일 패턴)
+

@@ -58,7 +58,6 @@ make test       # Run PreToolUse hook tests
 | terraform-ops | `/terraform-ops <directory>` | Terraform state inspection, plan analysis, IaC authoring guide |
 | argocd-ops | `/argocd-ops <app-or-context>` | ArgoCD app status, sync monitoring, drift detection, GitOps manifest authoring |
 | ralph | `/ralph [N] <task>` | Self-review loop (iterative verification, default 5 rounds) |
-| mmdraw | `/mmdraw <target>` | Mermaid diagram generator from source/docs analysis (→ Excalidraw manual conversion) |
 | compound | `/compound [completed\|paused] <desc>` | Work synthesis - learnings capture, doc lifecycle, CHANGELOG update |
 | catchup | `/catchup` | Read-only session context restore — reads git (recent commits + uncommitted) → CLAUDE.md → README → docs, briefs what was done last & where to start |
 | best-practice | `/best-practice <topic or question>` | DevOps best practice research with Citation verification, AI content detection, source independence, domain-aware recency |
@@ -140,7 +139,6 @@ Match priority: exact key name > alias match > partial match (prompts selection 
 │   │   └── references/ # GitOps deep-dive (ArgoCD/Flux install, AppSet, sealed secrets)
 │   ├── ralph/        # Self-review loop (iterative verification)
 │   │   └── references/ # Domain checklists + FAIL/NOTE judgement policy
-│   ├── mmdraw/       # Mermaid diagram generator (→ Excalidraw conversion)
 │   ├── compound/     # Work synthesis - learnings, doc lifecycle, CHANGELOG
 │   │   └── references/ # 3 topics (work-doc, learnings, changelog)
 │   ├── catchup/      # Session context restore (git + CLAUDE.md/README/docs)
@@ -164,7 +162,10 @@ Match priority: exact key name > alias match > partial match (prompts selection 
 │   ├── install.sh    # Backup → symlink → merge
 │   ├── uninstall.sh
 │   └── update.sh
-└── templates/        # Templates for new skills/agents
+├── templates/        # Templates for new skills/agents
+└── _disabled/        # Skills kept in repo but excluded from install (not under skills/*)
+    ├── mmdraw/       # Mermaid diagram generator — re-enable with `mv _disabled/mmdraw skills/`
+    └── humanize-ko/  # Superseded by humanize-korean plugin (see docs/external-plugins.md)
 ```
 
 <details>
@@ -175,6 +176,8 @@ Match priority: exact key name > alias match > partial match (prompts selection 
 3. **Merge settings.json**: Adds allow/deny rules to existing config (preserves hooks, deduplicates)
 4. **Merge CLAUDE.md**: Marker-based block management (`# === claude-ops-skills:start/end ===`)
 5. **settings.local.json**: Never modified
+
+> External Claude Code plugins are **not** handled by install.sh — install them manually. See [docs/external-plugins.md](docs/external-plugins.md).
 
 </details>
 
@@ -226,7 +229,7 @@ To disable, remove the `Stop` section from `~/.claude/settings.json`:
 
 ### Diagram & Visualization
 
-- [mermaid-to-excalidraw](https://mermaid-to-excalidraw.vercel.app/) - Mermaid → Excalidraw web converter (used with `mmdraw` skill output)
+- [mermaid-to-excalidraw](https://mermaid-to-excalidraw.vercel.app/) - Mermaid → Excalidraw web converter
 
 ### Compound Engineering
 
