@@ -28,6 +28,23 @@ for skill_dir in "$REPO_DIR"/skills/*/; do
     fi
 done
 
+# 외부 skill 심링크 제거 (clone된 코드 자체는 보존 — 재다운로드 비용, 타 프로젝트 공유 가능성)
+EXTERNAL_SKILLS_DIR="${EXTERNAL_SKILLS_DIR:-$HOME/.claude/external-skills}"
+manifest="$REPO_DIR/configs/external-skills.tsv"
+if [ -f "$manifest" ]; then
+    while IFS=$'\t' read -r name clone_url skill_subdir description || [ -n "$name" ]; do
+        case "$name" in
+            ''|\#*) continue ;;
+        esac
+        target="$SKILLS_DIR/$name"
+        expected="$EXTERNAL_SKILLS_DIR/$name/$skill_subdir"
+        if [ -L "$target" ] && [ "$(readlink "$target")" = "$expected" ]; then
+            rm "$target"
+            echo "  외부 skill 심링크 제거: $name (clone은 $EXTERNAL_SKILLS_DIR/$name 에 보존)"
+        fi
+    done < "$manifest"
+fi
+
 # CLAUDE.md에서 관리 영역 제거
 if [ -f "$CLAUDE_DIR/CLAUDE.md" ]; then
     start_marker="# === claude-ops-skills:start ==="

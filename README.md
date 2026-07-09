@@ -12,7 +12,7 @@ All operations are **READ-ONLY by default**. Mutating commands are blocked at th
 
 - [Quick Start](#quick-start)
 - [Skills](#skills)
-- [External Plugins](#external-plugins)
+- [External Plugins & Skills](#external-plugins--skills)
 - [Agents](#agents)
 - [Prerequisites](#prerequisites)
 - [Structure](#structure)
@@ -66,14 +66,20 @@ make test       # Run PreToolUse hook tests
 | write-a-skill | `/write-a-skill` | Interview-based scaffolding for new skills — enforces description/length/security conventions |
 | transfer-en | `/transfer-en <한국어>` | Korean → easy conversational English (CEFR A2) with casual alternative + auto-accumulating learning notes |
 
-## External Plugins
+## External Plugins & Skills
 
-Third-party Claude Code plugins consumed via `/plugin` (installed manually — **not** handled by `install.sh`). Kept external to receive upstream updates instead of vendoring stale copies.
+Third-party Claude Code resources kept external to receive upstream updates instead of vendoring stale copies.
+
+**Plugins** — consumed via `/plugin` (installed manually, **not** handled by `install.sh`):
 
 | Plugin | Marketplace | Use |
 |--------|-------------|-----|
 | `humanize-korean` | `epoko77-ai/im-not-ai` | De-AI Korean text (content-preserving rewrite) |
 | `ponytail` | `DietrichGebert/ponytail` | Pre-generation over-engineering guardrail (YAGNI, stdlib-first) |
+
+**Skills** (no `marketplace.json` → can't use `/plugin`) — declared in `configs/external-skills.tsv`, reproduced by `install.sh` (clone → npm → symlink, cloned outside the repo, updated via `git pull`):
+
+No active entries. The mechanism stays in place — add one TAB-separated line to `configs/external-skills.tsv` and re-run `install.sh` to register a new external skill. (Previously carried `archify`, disabled 2026-07-09 — see [docs/external-plugins.md](docs/external-plugins.md).)
 
 → Install commands, update notes, and role-vs-builtin guidance: [docs/external-plugins.md](docs/external-plugins.md)
 
@@ -169,6 +175,7 @@ Match priority: exact key name > alias match > partial match (prompts selection 
 ├── configs/          # Configuration templates
 │   ├── settings.json.template     # allow/deny rules
 │   ├── claude.md.template         # CLAUDE.md merge content
+│   ├── external-skills.tsv        # External skills to clone + symlink (not plugins)
 │   └── settings.local.json.example
 ├── scripts/          # Install/management scripts
 │   ├── install.sh    # Backup → symlink → merge
@@ -185,11 +192,12 @@ Match priority: exact key name > alias match > partial match (prompts selection 
 
 1. **Backup**: Saves existing files to `~/.claude/backups/claude-ops-skills/{timestamp}/`
 2. **Symlink skills**: `skills/*` → `~/.claude/skills/*` (skips if already linked)
-3. **Merge settings.json**: Adds allow/deny rules to existing config (preserves hooks, deduplicates)
-4. **Merge CLAUDE.md**: Marker-based block management (`# === claude-ops-skills:start/end ===`)
-5. **settings.local.json**: Never modified
+3. **External skills**: clones each entry in `configs/external-skills.tsv` to `~/.claude/external-skills/` (`EXTERNAL_SKILLS_DIR`), runs `npm install` if needed, then symlinks — all idempotent
+4. **Merge settings.json**: Adds allow/deny rules to existing config (preserves hooks, deduplicates)
+5. **Merge CLAUDE.md**: Marker-based block management (`# === claude-ops-skills:start/end ===`)
+6. **settings.local.json**: Never modified
 
-> External Claude Code plugins are **not** handled by install.sh — install them manually. See [docs/external-plugins.md](docs/external-plugins.md).
+> External **plugins** (with a marketplace) are **not** handled by install.sh — install them manually via `/plugin`. External **skills** (no marketplace) are. See [docs/external-plugins.md](docs/external-plugins.md).
 
 </details>
 

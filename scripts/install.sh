@@ -105,6 +105,105 @@ install_skills() {
     done
 }
 
+# --- 외부 Skills 설치 (plugin이 아닌 skill: clone + npm + 심링크) ---
+# 선언 파일: configs/external-skills.tsv (name / clone_url / skill_subdir / description)
+# clone 위치: EXTERNAL_SKILLS_DIR (기본 ~/.claude/external-skills), repo 밖 — vendoring 안 함
+install_external_skills() {
+    local manifest="$REPO_DIR/configs/external-skills.tsv"
+    local ext_dir="${EXTERNAL_SKILLS_DIR:-$HOME/.claude/external-skills}"
+
+    if [ ! -f "$manifest" ]; then
+        return  # 선언 파일 없으면 조용히 스킵
+    fi
+
+    log_step "외부 Skills 설치 중 (clone + npm + 심링크)..."
+
+    if ! command -v git &> /dev/null; then
+        log_warn "  git 없음 → 외부 skill 스킵"
+        return
+    fi
+
+    mkdir -p "$ext_dir"
+    mkdir -p "$SKILLS_DIR"
+
+    local line name clone_url skill_subdir description
+    while IFS=$'\t' read -r name clone_url skill_subdir description || [ -n "$name" ]; do
+        # 주석(#...) / 빈 줄 스킵
+        case "$name" in
+            ''|\#*) continue ;;
+        esac
+        # 필수 필드 검증
+        if [ -z "$clone_url" ] || [ -z "$skill_subdir" ]; then
+            log_warn "  $name: clone_url 또는 skill_subdir 누락 → 스킵"
+            continue
+        fi
+
+        local clone_path="$ext_dir/$name"
+        local skill_path="$clone_path/$skill_subdir"
+
+        # 1. clone (없을 때만; 있으면 그대로 두어 로컬 변경/버전 보존)
+        if [ -d "$clone_path/.git" ]; then
+            log_info "  $name: 이미 clone됨 → 유지 (갱신은 'git -C $clone_path pull')"
+        elif [ -e "$clone_path" ]; then
+            log_warn "  $name: $clone_path 가 git repo가 아님 → 스킵 (수동 확인 필요)"
+            continue
+        else
+            log_info "  $name: clone 중 → $clone_path"
+            if ! git clone --depth 1 "$clone_url" "$clone_path" 2>/dev/null; then
+                log_error "  $name: clone 실패 ($clone_url) → 스킵"
+                continue
+            fi
+        fi
+
+        # SKILL.md 존재 확인
+        if [ ! -f "$skill_path/SKILL.md" ]; then
+            log_error "  $name: $skill_subdir/SKILL.md 없음 → 심링크 스킵"
+            continue
+        fi
+
+        # 2. npm 의존성 (package.json 있을 때만)
+        if [ -f "$skill_path/package.json" ]; then
+            if command -v npm &> /dev/null; then
+                if [ -d "$skill_path/node_modules" ]; then
+                    log_info "  $name: node_modules 존재 → npm install 스킵"
+                else
+                    log_info "  $name: npm install --omit=dev 실행 중..."
+                    if ! (cd "$skill_path" && npm install --omit=dev >/dev/null 2>&1); then
+                        log_warn "  $name: npm install 실패 → 계속 진행 (일부 기능 제한 가능)"
+                    fi
+                fi
+            else
+                log_warn "  $name: package.json 있으나 npm 없음 → 의존성 설치 스킵"
+            fi
+        fi
+
+        # 3. 심링크 (기존 install_skills와 동일한 규칙)
+        local target="$SKILLS_DIR/$name"
+        if [ -L "$target" ]; then
+            local current_link
+            current_link="$(readlink "$target")"
+            if [ "$current_link" = "$skill_path" ]; then
+                log_info "  $name: 이미 심링크됨 ✓"
+                continue
+            else
+                log_warn "  $name: 다른 곳을 가리키는 심링크 → 업데이트"
+                rm "$target"
+            fi
+        elif [ -d "$target" ]; then
+            log_warn "  $name: 기존 디렉토리 발견 → 백업 후 교체"
+            backup_dir "$target" "$name"
+            rm -rf "$target"
+        elif [ -e "$target" ]; then
+            log_warn "  $name: 기존 파일 발견 → 백업 후 교체"
+            backup_file "$target"
+            rm "$target"
+        fi
+
+        ln -s "$skill_path" "$target"
+        log_info "  $name: 심링크 생성 → $skill_path"
+    done < "$manifest"
+}
+
 # --- settings.json 머지 ---
 merge_settings() {
     log_step "settings.json 머지 중..."
@@ -530,6 +629,8 @@ main() {
     generate_clusters_yaml
     echo ""
     install_skills
+    echo ""
+    install_external_skills
     echo ""
     merge_settings
     echo ""

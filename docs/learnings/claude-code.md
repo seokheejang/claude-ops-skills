@@ -118,12 +118,21 @@ ralph FAIL 판정 기준 *"이거 안 고치면 실제로 터지나"*는 L2 적�
 │   └─ 원본 repo에 .claude-plugin/marketplace.json 있나?
 │       ├─ 있음 → /plugin marketplace add <owner/repo> + /plugin install <name>@<mkt>
 │       │         (서드파티는 auto-update 기본 OFF → /plugin marketplace update 수동, 또는 "autoUpdate": true)
-│       └─ 없음 → fork해서 marketplace.json 추가, 또는 아래 submodule
+│       └─ 없음 (zip/디렉토리 배포 skill) → configs/external-skills.tsv에 선언 → install.sh가 재현
+│                 (clone→npm→심링크, repo 밖 clone, git pull로 갱신. 아래 "외부 skill 방식" 참조)
 ├─ 내 repo 안에서 버전 추적하며 관리하고 싶다
 │   └─ git submodule (skills/ 또는 vendor/) — 단 커스터마이징 시 충돌, 커맨드 네임스페이스 정리 필요
 └─ 경량화/내 식 커스터마이징이 우선, 업데이트는 포기 가능
     └─ 직접 작성 (write-a-skill). "영감만" 차용 시 출처 귀속, MIT면 LICENSE 보존
 ```
+
+**외부 skill 방식 (marketplace.json 없는 경우, 2026-07 확립):**
+- plugin `/plugin`은 marketplace.json이 있어야 동작. 없으면 이 repo는 `configs/external-skills.tsv` + `install.sh install_external_skills()`로 대신 재현한다.
+- 자체 skill 심링크(`skills/*` → `~/.claude/skills/*`)와 **동일한 모델, source만 외부 repo**. `k8s-study-lab`이 다른 로컬 repo를 가리키는 것과 같은 패턴 (repo에 vendoring 안 함).
+- clone 위치 기본값은 **개인 경로 금지** → `~/.claude/external-skills` (다른 사람도 쓰는 repo이므로 `~/dev/<user>/` 같은 개인 경로를 박으면 pre-commit hook의 로컬경로 검사에 걸리고 남의 홈에 이상한 경로가 생김). `EXTERNAL_SKILLS_DIR`로 조정 가능.
+- npm 의존성은 `package.json` 있을 때만 조건부 설치. idempotent (clone/npm/심링크 모두 "이미 있으면 스킵").
+- 문서: [external-plugins.md](../external-plugins.md) "외부 Skills (plugin 아님)" 섹션.
+- 사례: archify (다이어그램 생성 skill, MIT). plugin이 아니라 skill zip 배포라 이 경로로 등록. → **2026-07-09 비활성화** (그리기 품질 미흡). 메커니즘 검증용 첫 사례로서의 가치는 남으므로 tsv에서 주석 처리만, 로직·문서는 유지.
 
 핵심 사실 (공식 문서, 2026-06 기준):
 - plugin은 **install.sh 심링크 모델과 별개 시스템** (`~/.claude/plugins/`에서 독립 관리). "내 repo로 가져와 관리"가 아니라 "repo 밖에서 소비"다.

@@ -1,10 +1,17 @@
-# External Plugins
+# External Plugins & Skills
 
-이 repo의 자체 스킬(`skills/`, install.sh가 심링크) **외에** 수동으로 설치하는 외부 Claude Code 플러그인 목록.
+이 repo의 자체 스킬(`skills/`, install.sh가 심링크) **외에** 소비하는 외부 Claude Code 자원.
+두 종류가 있고 설치 경로가 다르다:
 
-> 왜 별도 관리: 플러그인은 install.sh 심링크 모델과 **별개 시스템**(`~/.claude/plugins/`)이라
-> install.sh가 건드리지 않는다. 새 머신에서 재현하려면 아래 명령을 직접 실행해야 한다.
-> 도입 기준(베끼기 vs plugin vs submodule)은 [learnings/claude-code.md](learnings/claude-code.md) 참조.
+| 종류 | 조건 | 설치 방식 | 재현 |
+|------|------|----------|------|
+| **외부 plugin** | 원본 repo에 `.claude-plugin/marketplace.json` 있음 | `/plugin` 마켓플레이스 (수동, 인터랙티브) | 새 머신에서 `/plugin` 명령 직접 실행 |
+| **외부 skill** | marketplace.json 없음 (zip/디렉토리 배포) | `configs/external-skills.tsv` + install.sh (clone→npm→심링크) | `install.sh` 재실행 시 자동 |
+
+> 왜 별도 관리: plugin은 install.sh 심링크 모델과 **별개 시스템**(`~/.claude/plugins/`)이라
+> install.sh가 건드리지 않는다. 반면 외부 skill은 install.sh가 재현하되, 코드는 repo에 vendoring하지 않고
+> 외부 경로(기본 `~/.claude/external-skills`, `EXTERNAL_SKILLS_DIR`로 조정)에 clone해 `git pull`로 업스트림 갱신을 받는다.
+> 도입 기준(베끼기 vs plugin vs submodule vs 외부 skill)은 [learnings/claude-code.md](learnings/claude-code.md) 참조.
 
 ## 설치된 플러그인
 
@@ -52,6 +59,49 @@ ponytail은 코드 단순화 영역에서 Claude Code **내장** 스킬과 인�
 
 - 수동: `/plugin marketplace update epoko77-ai/im-not-ai`
 - 자동: `/plugin` → Marketplaces 탭에서 해당 마켓플레이스의 autoUpdate 토글 ON
+
+---
+
+## 외부 Skills (plugin 아님)
+
+`.claude-plugin/marketplace.json`이 없어 `/plugin`으로 설치할 수 없는 외부 skill.
+zip/디렉토리로 배포되는 것들로, `configs/external-skills.tsv`에 선언하면 **install.sh가 재현**한다.
+
+### 설치된 외부 skill
+
+현재 활성 항목 없음. (아래는 비활성화 이력 — 메커니즘은 그대로 유지되며, `configs/external-skills.tsv`에 한 줄 추가하면 재현된다.)
+
+| skill | 원본 | 상태 | 비고 |
+|-------|------|------|------|
+| `archify` | [tt-a1i/archify](https://github.com/tt-a1i/archify) (MIT) | 비활성 (2026-07-09) | 그리기 품질이 기대만큼 안 나와 제거. tsv에서 주석 처리 — `#`을 떼면 install.sh가 재설치 |
+
+### 동작 방식
+
+`configs/external-skills.tsv`의 각 줄(`name / clone_url / skill_subdir / description`)마다 install.sh가:
+
+1. `EXTERNAL_SKILLS_DIR`(기본 `~/.claude/external-skills`)에 clone — **없을 때만**, 있으면 로컬 상태 유지
+2. skill 디렉토리에 `package.json`이 있으면 `npm install --omit=dev` — `node_modules` 있으면 스킵
+3. `~/.claude/skills/<name>` 심링크 생성 (기존 자체 skill과 동일한 규칙, idempotent)
+
+repo에 코드를 **vendoring하지 않는다** — clone 위치는 repo 밖이고, `git pull`로 업스트림 갱신을 받는다.
+(자체 skill 심링크와 동일한 모델, source만 외부 repo. `k8s-study-lab`이 다른 repo를 가리키는 것과 같은 패턴.)
+
+### 업데이트
+
+```
+git -C ~/.claude/external-skills/<name> pull
+# package.json이 바뀌었으면:
+cd ~/.claude/external-skills/<name>/<skill_subdir> && npm install --omit=dev
+```
+
+### 새 외부 skill 추가 시
+
+1. [learnings/claude-code.md](learnings/claude-code.md)의 결정 트리로 "plugin 아닌 외부 skill"이 맞는 방식인지 확인
+   (marketplace.json 있으면 위 plugin 방식, 커스터마이징 우선이면 직접 작성)
+2. `configs/external-skills.tsv`에 한 줄 추가 (TAB 구분)
+3. `./scripts/install.sh` 재실행 → 자동 clone/설치/심링크
+4. 위 표에 한 줄 추가
+5. 기능이 이 repo 자체 skill과 중복되면 한쪽을 `_disabled/`로 빼 혼란 제거
 
 ## 새 플러그인 추가 시
 
