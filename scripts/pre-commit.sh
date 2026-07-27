@@ -36,10 +36,23 @@ CLUSTERS_YAML="$REPO_ROOT/skills/k8s-ops/clusters.yaml"
 infra_names=""
 if [ -f "$CLUSTERS_YAML" ]; then
     # 일반적인 단어(config, default 등)와 6자 미만 키는 오탐 방지를 위해 제외
-    infra_names=$(grep -E "^  [a-zA-Z]" "$CLUSTERS_YAML" | sed 's/:.*//' | tr -d ' ' \
+    names=$(grep -E "^  [a-zA-Z]" "$CLUSTERS_YAML" | sed 's/:.*//' | tr -d ' ' \
         | grep -vE '^(config|default|local|test|prod|dev|staging)$' \
-        | awk 'length >= 6' \
-        | paste -sd '|' -)
+        | awk 'length >= 6' || true)
+
+    # clusters.yaml.example의 placeholder(my-cluster 등)도 제외.
+    # 이 이름들은 CLAUDE.md가 예시/템플릿에 쓰라고 규정한 제네릭 이름이므로
+    # 문서에 등장하는 게 정상이다. install.sh가 example을 그대로 복사한
+    # 상태(kubeconfig 미검출)라면 전체가 placeholder라 이 검사는 무력화된다.
+    if [ -f "${CLUSTERS_YAML}.example" ]; then
+        placeholders=$(grep -E "^  [a-zA-Z]" "${CLUSTERS_YAML}.example" \
+            | sed 's/:.*//' | tr -d ' ' || true)
+        if [ -n "$placeholders" ] && [ -n "$names" ]; then
+            names=$(echo "$names" | grep -vxF "$placeholders" || true)
+        fi
+    fi
+
+    infra_names=$(echo "$names" | grep -v '^$' | paste -sd '|' - || true)
 fi
 
 echo "=== 보안 체크리스트 ==="
