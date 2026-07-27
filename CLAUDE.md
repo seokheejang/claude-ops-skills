@@ -18,12 +18,9 @@ DevOps 운영용 Claude Code Skills & Agents 저장소.
 
 ## DevOps 리서치 원칙
 
-**적용 시점**: 신규 도구/애드온 도입 검토, 아키텍처 개선 방향 논의, 트러블슈팅에서 일반적이지 않은 문제를 만났을 때. 단순 조회, 설정 변경, 코드 수정 등 일상 작업에는 적용하지 않는다.
-
-- 공식 문서(K8s docs, Helm docs, Terraform registry, AWS docs 등)를 우선 참조
-- 업계 동향 비교: 유사한 문제를 다른 DevOps 팀이 어떻게 해결했는지 WebSearch로 조사
-- 대안 비교: 도구/애드온 도입 시 경쟁 프로젝트와 GitHub stars, 유지보수 상태, 커뮤니티 활성도를 비교
-- 출처를 반드시 명시 (URL 또는 문서 경로)
+신규 도구/애드온 도입 검토, 아키텍처 개선 논의, 비정형 장애에는 `best-practice` 스킬 사용
+(공식 문서 우선 · 업계 사례 비교 · 대안 비교 · 출처 검증 절차 포함).
+단순 조회, 설정 변경, 코드 수정 등 일상 작업에는 적용하지 않는다.
 
 ## Compaction 지시
 
@@ -50,15 +47,12 @@ Conventional Commits 사용:
 
 ## Commit / PR 시 보안 체크리스트 (CRITICAL)
 
-커밋 또는 주요 변경 전 반드시 아래 항목을 확인할 것:
+자동 검증은 `scripts/pre-commit.sh`(git pre-commit 훅)가 담당 — 로컬 경로, 내부 인프라명,
+kubeconfig 파일명, 공인 IP, credentials, 민감 파일. **`--no-verify`로 우회하지 말 것.**
 
-1. **로컬 경로 노출 금지**: `~/dev/<username>/`, `/Users/<username>/` 등 개인 경로가 포함되지 않았는지 확인
-2. **내부 인프라명 노출 금지**: 실제 클러스터명, 서비스명, 회사/프로젝트 고유 이름이 코드나 문서에 포함되지 않았는지 확인
-3. **kubeconfig 파일명 노출 금지**: `~/.kube/` 아래 실제 config 파일명은 clusters.yaml(gitignore됨)에만 존재해야 함
-4. **예시 파일은 일반화**: example/template 파일에는 `my-cluster`, `my-prod` 등 제네릭 이름만 사용
-5. **IP/호스트/URL 확인**: 실제 서버 IP, 내부 도메인, 엔드포인트가 하드코딩되지 않았는지 확인
-6. **credentials 확인**: password, token, secret, API key 등이 포함되지 않았는지 확인
-7. **.gitignore 확인**: `clusters.yaml`, `.env`, `settings.local.json` 등이 여전히 제외 상태인지 확인
+훅이 못 잡는 것만 수동 확인:
+- **예시 파일 일반화**: example/template 파일에는 `my-cluster`, `my-prod` 등 제네릭 이름만 사용
+- **.gitignore 상태**: `clusters.yaml`, `.env`, `settings.local.json` 등이 여전히 제외 상태인지 확인
 
 ## Learnings
 
