@@ -28,8 +28,9 @@
 - [ ] 하드코딩된 시크릿/경로/IP 없음
 - [ ] 권한이 최소 범위로 제한됨 (RBAC, IAM)
 - [ ] 예시 값이 제네릭명 사용 (`my-cluster`, `my-app`, `<DB_PASSWORD>` 등)
-- [ ] 커밋 대상이면 CLAUDE.md 보안 체크리스트 7항목도 검증
-  - 로컬 경로 / 인프라명 / kubeconfig 파일명 / 예시 일반화 / IP·호스트 / credentials / .gitignore
+- [ ] 커밋 대상이면 보안 체크 통과 확인 (CLAUDE.md "Commit / PR 시 보안 체크리스트")
+  - 자동: `scripts/pre-commit.sh` 훅 — 로컬 경로 / 인프라명 / kubeconfig 파일명 / 공인 IP / credentials / 민감 파일
+  - 수동: 예시 일반화 / .gitignore 상태 — 훅이 못 잡는 2항목
 
 ## 설정/문서
 

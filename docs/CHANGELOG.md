@@ -6,7 +6,7 @@ claude-ops-skills 다음 작업(Backlog) + 작업 이력 관리.
 ## 다음 작업 후보 (Backlog)
 
 ### 우선순위 높음
-- [ ] **code-reviewer agent 도입**: ralph가 못 다루는 L3 영역(bugs/logic/security/quality) 검토. Anthropic plugin (`feature-dev` 또는 `pr-review-toolkit`)의 code-reviewer agent를 베이스로 우리 컨벤션(한국어, CLAUDE.md 보안 7항목, K8s READ-ONLY) 통합. 도입 후 ralph SKILL.md의 *"도입 예정"* placeholder 제거. 상세 절차: [archive/06-skill-split-and-best-practice-enhancements.md](archive/06-skill-split-and-best-practice-enhancements.md) 핸드오프 섹션
+- [ ] **code-reviewer agent 도입**: ralph가 못 다루는 L3 영역(bugs/logic/security/quality) 검토. Anthropic plugin (`feature-dev` 또는 `pr-review-toolkit`)의 code-reviewer agent를 베이스로 우리 컨벤션(한국어, CLAUDE.md 보안 체크리스트 + `scripts/pre-commit.sh` 훅, K8s READ-ONLY) 통합. 도입 후 ralph SKILL.md의 *"도입 예정"* placeholder 제거. 상세 절차: [archive/06-skill-split-and-best-practice-enhancements.md](archive/06-skill-split-and-best-practice-enhancements.md) 핸드오프 섹션
 - [ ] **skill 실전 테스트**: 각 skill을 실제 운영 환경에서 호출하여 워크플로우 검증 (특히 best-practice 6개 보완 실전 검증, k8s-craft Safety Rules 강제 확인)
 - [ ] **agent 실전 테스트**: k8s-debugger, rpc-monitor를 실제 이슈 상황에서 사용해보기
 
