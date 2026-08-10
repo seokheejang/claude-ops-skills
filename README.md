@@ -6,7 +6,9 @@
 Claude Code slash-command skills and agents for DevOps daily operations.
 For DevOps engineers and SREs who manage Kubernetes clusters, Helm charts, Terraform IaC, ArgoCD GitOps, and blockchain infrastructure — run read-only inspections, security audits, and best-practice research without leaving the terminal.
 
-All operations are **READ-ONLY by default**. Mutating commands are blocked at the settings level and never executed.
+All operations are **READ-ONLY**. Mutating commands are blocked at the settings level and never executed.
+
+Infrastructure skills assume the cluster/server is **not directly reachable** from the session: they emit copy-paste read-only command bundles for the operator to run, then interpret the pasted output. Chart/IaC/manifest work runs locally on files.
 
 ## Table of Contents
 
@@ -47,19 +49,17 @@ make test       # Run PreToolUse hook tests
 
 | Skill | Command | Description |
 |-------|---------|-------------|
-| k8s-ops | `/k8s-ops <cluster>` | K8s cluster inspection (get, describe, logs, top) — paired with k8s-craft for authoring |
-| k8s-craft | `/k8s-craft <resource or topic>` | K8s manifest authoring & design (workloads, networking, storage, RBAC, NetworkPolicy, cost, operators, mesh, multi-cluster) |
-| k8s-security | `/k8s-security <cluster>` | K8s security audit (RBAC, NetworkPolicy, Pod Security) |
-| ssh-ops | `/ssh-ops <host>` | SSH server inspection |
+| k8s-ops | `/k8s-ops <context>` | K8s read-only inspection — emits copy-paste `kubectl` bundles, interprets pasted output |
+| k8s-craft | `/k8s-craft <resource or topic>` | K8s manifest authoring & design — our conventions and guardrails, not a YAML catalog |
+| k8s-security | `/k8s-security <context>` | K8s security audit (RBAC, NetworkPolicy, Pod Security) — emits command bundles, classifies by severity |
+| ssh-ops | `/ssh-ops <user@host>` | SSH server inspection — emits command bundles, checks against thresholds |
 | troubleshoot | `/troubleshoot <symptom>` | Evidence-based failure-diagnosis discipline — every judgment cites observed output, fixes cross-checked from multiple angles, side effects enumerated, remediation is operator-confirmed manual guidance only |
-| rpc-health | `/rpc-health <endpoint>` | Blockchain RPC node health check |
 | rpc-agent | `/rpc-agent <endpoint> <module>` | RPC analytics agent (block traversal, tx counting) |
-| db-ops | `/db-ops <database>` | DB read-only queries (SELECT, SHOW only) |
-| helm-ops | `/helm-ops <cluster-or-chart>` | Helm chart validation, release inspection, chart authoring guide |
+| db-ops | `/db-ops <target>` | DB read-only inspection — composes SELECT/SHOW bundles (no DML/DDL) |
+| helm-ops | `/helm-ops <context-or-chart>` | Helm chart validation (runs locally) + release inspection (command bundles) |
 | terraform-ops | `/terraform-ops <directory>` | Terraform state inspection, plan analysis, IaC authoring guide |
-| argocd-ops | `/argocd-ops <app-or-context>` | ArgoCD app status, sync monitoring, drift detection, GitOps manifest authoring |
+| argocd-ops | `/argocd-ops <app>` | ArgoCD app status, sync monitoring, drift detection — emits command bundles |
 | ralph | `/ralph [N] <task>` | Self-review loop (iterative verification, default 5 rounds) |
-| compound | `/compound [completed\|paused] <desc>` | Work synthesis - learnings capture, doc lifecycle, CHANGELOG update |
 | catchup | `/catchup` | Read-only session context restore — reads git (recent commits + uncommitted) → CLAUDE.md → README → docs, briefs what was done last & where to start |
 | best-practice | `/best-practice <topic or question>` | DevOps best practice research with Citation verification, AI content detection, source independence, domain-aware recency |
 | grill-me | `/grill-me` | Stress-test a plan or design via relentless one-by-one interview until shared understanding |
@@ -108,57 +108,23 @@ No active entries. The mechanism stays in place — add one TAB-separated line t
 
 > Only `Claude Code` and `make` are required. Other tools are needed only for their respective skills.
 
-<details>
-<summary><strong>Cluster Aliases</strong></summary>
-
-Add an `aliases` field in `clusters.yaml` to use short names for clusters:
-
-```yaml
-# skills/k8s-ops/clusters.yaml (local only, .gitignore)
-clusters:
-  my-cluster:
-    kubeconfig: "~/.kube/my_cluster_config"
-    aliases: ["dev", "my dev"]     # /k8s-ops dev → my-cluster
-  my-prod:
-    kubeconfig: "~/.kube/my_prod_config"
-    aliases: ["prod"]              # /k8s-security prod → my-prod
-```
-
-Usage:
-- `/k8s-ops dev` → matches alias `dev` → `my-cluster`
-- `/k8s-security prod` → matches alias `prod` → `my-prod`
-- `/k8s-ops my-cluster` → exact key match → `my-cluster`
-
-Match priority: exact key name > alias match > partial match (prompts selection if multiple candidates)
-
-> `clusters.yaml` is included in `.gitignore` so real cluster names are never exposed in the public repo. See `clusters.yaml.example` for configuration examples.
-
-</details>
-
 ## Structure
 
 ```
 ├── skills/           # Symlinked to ~/.claude/skills/
-│   ├── k8s-ops/      # K8s inspection skill + clusters.yaml (auto-generated locally)
-│   │   └── references/ # Troubleshooting deep-dive
+│   ├── k8s-ops/      # K8s inspection — emits kubectl command bundles
 │   ├── k8s-craft/    # K8s manifest authoring & design (paired with k8s-ops)
-│   │   └── references/ # 8 topics (workloads, networking, storage, ...)
 │   ├── k8s-security/ # K8s security audit skill
 │   ├── ssh-ops/      # SSH inspection skill
 │   ├── troubleshoot/ # Evidence-based failure-diagnosis discipline (no-speculation, manual-remediation guardrails)
-│   ├── rpc-health/   # RPC health check skill
 │   ├── rpc-agent/    # RPC analytics agent entry point
 │   │   └── scripts/  # Bundled analysis scripts (cosmos_total_tx.py, etc.)
 │   ├── db-ops/       # DB query skill
 │   ├── helm-ops/     # Helm chart inspection + authoring guide
-│   │   └── references/ # Chart authoring deep-dive (structure, values, templates, hooks, testing)
 │   ├── terraform-ops/ # Terraform state/plan + IaC authoring guide
 │   ├── argocd-ops/   # ArgoCD monitoring + GitOps manifest authoring
-│   │   └── references/ # GitOps deep-dive (ArgoCD/Flux install, AppSet, sealed secrets)
 │   ├── ralph/        # Self-review loop (iterative verification)
 │   │   └── references/ # Domain checklists + FAIL/NOTE judgement policy
-│   ├── compound/     # Work synthesis - learnings, doc lifecycle, CHANGELOG
-│   │   └── references/ # 3 topics (work-doc, learnings, changelog)
 │   ├── catchup/      # Session context restore (git + CLAUDE.md/README/docs)
 │   ├── best-practice/ # DevOps best practice research
 │   │   └── references/ # 3 topics (sources, verification, output)
@@ -237,7 +203,7 @@ To disable, remove the `Stop` section from `~/.claude/settings.json`:
 - When changes are needed, the skill provides commands as **text guidance only** — never executes them
 - Chart/IaC authoring uses **Write/Edit tools** to create files locally — no infrastructure impact
 - Sensitive data (kubeconfig contents, SSH keys) is never included in this repo
-- `clusters.yaml` is local only — `install.sh` auto-generates it by scanning `~/.kube/` (included in `.gitignore`)
+- Cluster contexts are supplied by the operator via `--context` — no cluster inventory is stored in this repo
 
 ## Reference
 

@@ -6,7 +6,7 @@ claude-ops-skills 다음 작업(Backlog) + 작업 이력 관리.
 ## 다음 작업 후보 (Backlog)
 
 ### 우선순위 높음
-- [ ] **code-reviewer agent 도입**: ralph가 못 다루는 L3 영역(bugs/logic/security/quality) 검토. Anthropic plugin (`feature-dev` 또는 `pr-review-toolkit`)의 code-reviewer agent를 베이스로 우리 컨벤션(한국어, CLAUDE.md 보안 체크리스트 + `scripts/pre-commit.sh` 훅, K8s READ-ONLY) 통합. 도입 후 ralph SKILL.md의 *"도입 예정"* placeholder 제거. 상세 절차: [archive/06-skill-split-and-best-practice-enhancements.md](archive/06-skill-split-and-best-practice-enhancements.md) 핸드오프 섹션
+- [x] **code-reviewer agent 도입**: 하네스 기본 `/code-review`(effort low~max) + `/simplify`로 충족 → 자체 구현 불필요. ralph 페어링 표를 실물 명령으로 교체 (v1.0)
 - [ ] **skill 실전 테스트**: 각 skill을 실제 운영 환경에서 호출하여 워크플로우 검증 (특히 best-practice 6개 보완 실전 검증, k8s-craft Safety Rules 강제 확인)
 - [ ] **agent 실전 테스트**: k8s-debugger, rpc-monitor를 실제 이슈 상황에서 사용해보기
 
@@ -20,11 +20,40 @@ claude-ops-skills 다음 작업(Backlog) + 작업 이력 관리.
 - [ ] **hook 테스트 강화**: BATS 기반 테스트 suite 추가 (oryband 참고)
 
 ### 낮은 우선순위
-- [ ] **install.sh 개선**: clusters.yaml 생성 시 kubeconfig validation 추가
 - [ ] **settings.local.json 정리 스크립트**: 중복 규칙 자동 제거
 - [ ] **zshrc alias**: 자주 쓰는 조합 단축키 추가
 
 ## 작업 이력
+
+### v1.0 — Opus 5 대응 정리 (2026-08-10)
+
+모델이 이미 아는 지식을 덜어내고, 스킬을 **가드레일 + 판정 기준 + 명령 생성기**로 재정의.
+
+**제거**
+- `compound`, `rpc-health` 스킬 삭제 (사용자 요청) — 참조하던 7곳(troubleshoot, best-practice, rpc-agent, agents/rpc-analytics, agents/rpc-monitor, README, CLAUDE.md) 복구
+- `references/` 5,773줄 삭제: k8s-craft 8개(3,899) · helm-ops(918) · argocd-ops(536) · k8s-ops(420). 표준 YAML/설치 명령/문법 레퍼런스는 모델이 알고, 적어두면 버전이 낡아 **틀린 답의 근거**가 된다
+- `clusters.yaml` 자동 생성 비활성화 — install.sh 호출부 주석 처리(함수는 보존), 로컬 파일·example 삭제
+
+**실행 모델 전환** — k8s-ops, k8s-security, helm-ops(릴리스 모드), argocd-ops, db-ops, ssh-ops
+- "Claude가 직접 실행" → **"복붙 가능한 READ-ONLY 명령 묶음 출력 + 붙여넣은 출력 해석"**
+- 6개 스킬 모두 `실행 모델` + `Arguments` 섹션을 **인라인으로** 보유 (초안은 k8s-ops에 위임했으나, 스킬 단독 호출 시 그 규칙을 못 읽어서 전부 펼침)
+- 왕복을 줄이기 위해 1차 진단 묶음을 한 덩어리로, 스크린샷에 담기게 `--no-headers`/`jsonpath`/`head` 적용
+- `--context` 명시 강제, 미확인 항목은 `(미확인)` — 특히 k8s-security는 "안 돌린 도메인을 통과로 처리 금지"를 명시
+- helm-ops 차트 모드와 terraform-ops는 로컬 파일 대상이라 **직접 실행 유지**
+
+**/ralph 검증에서 잡은 결함 (3라운드)**
+- **k8s-security RBAC 감사가 동작하지 않았다** — jsonpath 필터 안 `[*]` 와일드카드는 kubectl이 지원하지 않고(`string is not array or slice`), 통과했더라도 `@.rules[*].verbs[0]`은 각 rule의 **첫 verb만** 검사해 `verbs: [get, "*"]`를 놓친다. 보안 감사가 조용히 "No issues found"를 내는 실패 모드 → jq로 교체 후 합성 JSON으로 검증
+- **"복붙 가능한 블록"이 복붙되지 않았다** — `CTX=<context>`의 `<`를 셸이 리다이렉션으로 파싱해 블록 전체가 syntax error. 5개 스킬 placeholder 인용 처리 + `REL`/`NS`/`APP` 변수화. `bash -n` 회귀 검사 추가
+- **ssh-ops 1차 묶음에 ssh 래퍼가 없었다** — 복붙하면 원격이 아니라 로컬 머신을 조회한다 → 자립형 `ssh ... "$HOST" '...'` 단일 호출로 교체
+
+**보안**
+- deny 규칙 31 → 61개. SKILL.md 산문에만 있던 금지 명령을 실제 게이트로 승격: `terraform state rm/mv/push/pull`·`import`·`taint`·`force-unlock`·`workspace new/delete/select`·`init -upgrade`·`console`, `argocd app rollback/terminate-op/set/patch`·`repo/cluster/proj` 변경·`login`, `helm repo add/remove/update`·`plugin install`·`dependency update`
+
+**기타**
+- ralph 유지, `code-reviewer agent (도입 예정)` placeholder → `/code-review`·`/simplify` 실물 교체
+- write-a-skill에 "모델이 이미 아는 건 쓰지 않는다" 방침 추가 — `references/`는 방법론 전용
+- **SKILL.md 길이 룰 100줄 → 150줄** (write-a-skill SKILL.md/REFERENCE.md, templates/). 여유분은 분량 채우기가 아니라 **위임 대신 인라인**에 쓴다는 단서 포함
+- troubleshoot description 628자 → 296자
 
 ### v0.9 — Skill 분할 + 신규 스킬 + best-practice 보완 (2026-05-08)
 

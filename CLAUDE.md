@@ -24,18 +24,18 @@ DevOps 운영용 Claude Code Skills & Agents 저장소.
 
 ## Compaction 지시
 
-compact 시 반드시 보존할 것: 연결된 클러스터명, KUBECONFIG 경로, 발견된 이슈 목록, 수정한 파일 목록.
+compact 시 반드시 보존할 것: 대상 컨텍스트/호스트명, 사용자가 붙여넣은 실측 출력, 발견된 이슈 목록, 수정한 파일 목록.
 
 ## Rules
 
 - 모든 K8s 작업은 READ-ONLY (get, describe, logs, top, exec 조회만 허용)
 - 절대 secrets, kubeconfig 파일, .env 파일을 커밋하지 않을 것
-- clusters.yaml은 로컬 전용 (install.sh가 자동 생성, .gitignore에 포함)
+- 인프라 스킬은 **직접 실행이 아니라 복붙 가능한 READ-ONLY 명령 묶음 출력**이 기본 (clusters.yaml 자동 생성은 2026-08-10 비활성화)
 - Skill 디렉토리명이 곧 slash command명 (예: `k8s-ops` → `/k8s-ops`)
 
 ## Skill Naming Convention
 
-- kebab-case 사용 (예: `k8s-ops`, `rpc-health`)
+- kebab-case 사용 (예: `k8s-ops`, `k8s-craft`)
 - 각 skill 디렉토리에 반드시 SKILL.md 포함
 
 ## Commit Message Convention
@@ -52,7 +52,7 @@ kubeconfig 파일명, 공인 IP, credentials, 민감 파일. **`--no-verify`로 
 
 훅이 못 잡는 것만 수동 확인:
 - **예시 파일 일반화**: example/template 파일에는 `my-cluster`, `my-prod` 등 제네릭 이름만 사용
-- **.gitignore 상태**: `clusters.yaml`, `.env`, `settings.local.json` 등이 여전히 제외 상태인지 확인
+- **.gitignore 상태**: `.env`, `settings.local.json`, `db-targets.yaml` 등이 여전히 제외 상태인지 확인
 
 ## Learnings
 
