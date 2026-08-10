@@ -61,7 +61,7 @@ allowed-tools: Bash, Read, Grep, Glob, Skill
 
 `agents/rpc-analytics.md`를 참조하여 아래 순서로 실행:
 
-1. **Preflight**: `/rpc-health <endpoint>`로 노드 상태 확인
+1. **Preflight**: 노드 상태 확인 — `eth_chainId`(연결), `eth_syncing`(false여야 함), `eth_blockNumber`(범위 상한). Cosmos는 `/status`. 응답 없음/동기화 중이면 중단하고 사유 보고
 2. **Parameter Resolution**: 블록 범위 결정
    - `--last N`: 최근 N블록 (기본: 50, 최대: 1000)
    - `--from X --to Y`: 명시적 블록 범위
@@ -89,7 +89,7 @@ python3 skills/rpc-agent/scripts/cosmos_total_tx.py http://localhost:26657
 
 ## Error Handling
 
-- endpoint 연결 실패 → `/rpc-health` 결과와 함께 원인 안내
+- endpoint 연결 실패 → preflight 결과(어느 호출에서 실패했는지)와 함께 원인 안내
 - module명 오타 → 사용 가능한 모듈 목록 다시 표시
 - 블록 범위 초과 (>1000) → 축소 또는 분할 제안
 - RPC rate limit (429) → 배치 크기 축소 후 재시도

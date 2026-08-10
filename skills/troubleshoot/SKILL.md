@@ -1,13 +1,13 @@
 ---
 name: troubleshoot
-description: Evidence-based troubleshooting discipline for infra/service failures (k8s, SSH). Forbids conclusions without observed command output - judgments must cite evidence, every proposed fix is classified as symptom-blocking/mitigation/root-fix with rationale, non-obvious fixes are cross-checked against industry practice, success criteria are defined before applying, and remediation stays operator-confirmed manual guidance, never auto-executed. Use when the user wants to diagnose a failure, find root cause with evidence, stress-test a hypothesis, says "트러블슈팅", "장애 분석", "원인 분석", "troubleshoot", or pastes logs/errors to diagnose.
+description: Evidence-based failure diagnosis discipline - no conclusion without observed output, every fix classified as symptom-blocking/mitigation/root-fix, remediation stays manual. Use for "트러블슈팅", "장애 분석", "원인 분석", "troubleshoot", stress-testing a hypothesis, or when logs/errors are pasted to diagnose.
 argument-hint: "<현상/증상 설명>"
 allowed-tools: Read, Grep, Glob, AskUserQuestion
 ---
 
 # Troubleshoot — 근거 기반 장애 진단 규율
 
-인프라/서비스 장애를 **추측 없이** 진단하고, **임시 처방이 아닌 근본 원인 제거**까지 끌고 가는 방법론 스킬. 직접 명령을 실행하지 않는다 — 조회는 [k8s-ops](../k8s-ops/), [ssh-ops](../ssh-ops/) 등 READ-ONLY 스킬로, 업계 사례 조사는 [best-practice](../best-practice/)로, 학습 기록은 [compound](../compound/)로 위임하고, 이 스킬은 **증거에 대한 추론 규율과 조치의 근본성 판별**을 강제한다. (`allowed-tools`에 Bash 없음 = 어떤 명령도 직접 실행 불가)
+인프라/서비스 장애를 **추측 없이** 진단하고, **임시 처방이 아닌 근본 원인 제거**까지 끌고 가는 방법론 스킬. 직접 명령을 실행하지 않는다 — 조회는 [k8s-ops](../k8s-ops/), [ssh-ops](../ssh-ops/) 등 READ-ONLY 스킬로, 업계 사례 조사는 [best-practice](../best-practice/)로 위임하고, 이 스킬은 **증거에 대한 추론 규율과 조치의 근본성 판별**을 강제한다. (`allowed-tools`에 Bash 없음 = 어떤 명령도 직접 실행 불가)
 
 ## 절대 규칙 (위반 금지)
 
@@ -64,7 +64,7 @@ allowed-tools: Read, Grep, Glob, AskUserQuestion
 ### 조치 이후 (진단으로 끝내지 않는다)
 
 8. **사후 검증** — 적용 *전에* 성공 기준을 수치로 정의하고(예: "카운터 delta=0/min, 알람 소멸"), 적용 후 동일한 증거 규율로 검증한다. 기준 미달이면 원인 분석으로 되돌아간다.
-9. **재발 방지** — (a) **동일 클래스 전수 감사**: 같은 결함을 가진 다른 대상을 찾는다 (증상 없는 개체가 조용히 같은 문제를 가질 수 있음), (b) **영구화**: 임시 적용을 프로비저닝 표준에 편입, (c) **박제**: runbook/learnings에 기록 ([compound](../compound/) 위임).
+9. **재발 방지** — (a) **동일 클래스 전수 감사**: 같은 결함을 가진 다른 대상을 찾는다 (증상 없는 개체가 조용히 같은 문제를 가질 수 있음), (b) **영구화**: 임시 적용을 프로비저닝 표준에 편입, (c) **박제**: runbook 또는 `docs/learnings/`에 기록.
 
 ## Output
 

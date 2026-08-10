@@ -74,7 +74,7 @@
 
 💡 이 리서치는 향후 비슷한 결정에 재활용 가치가 있어 보입니다.
 
-학습 기록으로 저장하려면 `/compound completed best-practice <주제 요약>`을 실행하세요.
+학습 기록으로 남기려면 `docs/learnings/<도메인>.md`에 추가할지 물어보세요.
 docs/learnings/<domain>.md 에 핵심 결론과 출처가 추가됩니다.
 
 (휘발성 정보로 충분하면 무시해도 됩니다.)

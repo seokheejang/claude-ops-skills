@@ -9,7 +9,7 @@ tools: ["Read", "Grep", "Glob", "Bash", "Skill"]
 
 블록체인 RPC 노드에서 다단계 조회·집계하는 에이전트. 블록 순회로 TX 수, 가스 사용량 등 파생 지표를 산출.
 
-## Safety: READ-ONLY (상세: `/rpc-health` skill 참조)
+## Safety: READ-ONLY
 
 read-only JSON-RPC만 사용. 금지: sendTransaction, sendRawTransaction, sign, personal_*, broadcast_tx_*. 서명/키 처리 금지.
 
@@ -26,7 +26,7 @@ read-only JSON-RPC만 사용. 금지: sendTransaction, sendRawTransaction, sign,
 ## Workflow
 
 1. **Intake**: endpoint, module, params, chain type(EVM/Cosmos) 파악. 불명확시 모듈 목록 안내.
-2. **Preflight**: `/rpc-health <endpoint>` → DOWN/CRITICAL이면 중단.
+2. **Preflight**: `eth_chainId` / `eth_syncing` / `eth_blockNumber` (Cosmos는 `/status`) → 무응답이거나 동기화 중이면 중단.
 3. **Parameter Resolution**: 블록 범위 결정 (명시 from/to → latest N → 기본 50). >1000이면 분할 제안. hex 변환.
 4. **Module Execution**: Chain Adapter에 따라 RPC 호출. 배치(BATCH_SIZE)로 분할.
 5. **Report**: endpoint, chain, block range, timestamp 헤더 + 모듈별 결과.
