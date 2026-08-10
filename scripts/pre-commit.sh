@@ -18,7 +18,14 @@ failed=false
 staged_files=$(git diff --cached --name-only --diff-filter=d 2>/dev/null || true)
 [ -z "$staged_files" ] && exit 0
 
-staged_content=$(git diff --cached 2>/dev/null || true)
+# 추가되는 줄(+)만 검사한다. diff 전체를 보면 "시크릿을 제거하는 커밋"까지
+# 차단되어(삭제 줄이 - 로 잡힘) 정리 작업이 막힌다. 문맥 줄은 애초에 diff에
+# 안 실리므로 + 로 좁혀도 탐지력 손실은 없다.
+added_lines() {
+    git diff --cached "$@" 2>/dev/null | grep -E '^\+' | grep -vE '^\+\+\+' || true
+}
+
+staged_content=$(added_lines)
 
 check() {
     local label="$1" pattern="$2"
@@ -66,7 +73,7 @@ if [ -n "$infra_names" ]; then
     # clusters.yaml, clusters.yaml.example은 인프라명이 있어도 정상
     non_cluster_files=$(echo "$staged_files" | grep -vE "clusters\.yaml" || true)
     if [ -n "$non_cluster_files" ]; then
-        non_cluster_diff=$(git diff --cached -- $non_cluster_files 2>/dev/null || true)
+        non_cluster_diff=$(added_lines -- $non_cluster_files)
         if echo "$non_cluster_diff" | grep -qE "$infra_names"; then
             echo -e "${RED}[FAIL]${NC} 내부 인프라명 노출 (clusters.yaml 외 파일)"
             echo "$non_cluster_diff" | grep -E "$infra_names" | head -5
