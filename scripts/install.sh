@@ -103,6 +103,40 @@ install_skills() {
         ln -s "$source" "$target"
         log_info "  $skill_name: 심링크 생성 → $source"
     done
+
+    prune_removed_skills
+}
+
+# --- repo에서 삭제된 skill의 잔여 심링크 정리 ---
+# install/uninstall 모두 "$REPO_DIR/skills/*/" 를 순회하므로, repo에서 지운 skill은
+# 양쪽 루프에 안 잡혀 ~/.claude/skills/ 에 깨진 심링크로 남는다.
+# 여기서만 SKILLS_DIR 쪽을 훑어 정리한다.
+# 안전장치: 이 repo의 skills/ 를 가리키면서 대상이 사라진 심링크만 지운다.
+#   - 다른 repo/외부 skill 심링크 → 건드리지 않음
+#   - 실제 디렉토리/파일 → 건드리지 않음
+prune_removed_skills() {
+    local pruned=0
+    local target link_target
+
+    for target in "$SKILLS_DIR"/*; do
+        [ -L "$target" ] || continue          # 심링크가 아니면 스킵
+        [ -e "$target" ] && continue          # 대상이 살아있으면 스킵
+
+        link_target="$(readlink "$target")"
+        case "$link_target" in
+            "$REPO_DIR"/skills/*)
+                rm "$target"
+                log_warn "  $(basename "$target"): repo에서 삭제됨 → 잔여 심링크 제거"
+                pruned=$((pruned + 1))
+                ;;
+            *)
+                log_warn "  $(basename "$target"): 깨진 심링크이나 이 repo 소유가 아님 → 유지 ($link_target)"
+                ;;
+        esac
+    done
+
+    [ "$pruned" -gt 0 ] && log_info "  잔여 심링크 ${pruned}개 정리 완료"
+    return 0
 }
 
 # --- 외부 Skills 설치 (plugin이 아닌 skill: clone + npm + 심링크) ---

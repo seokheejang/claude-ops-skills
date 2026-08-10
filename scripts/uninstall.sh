@@ -28,6 +28,20 @@ for skill_dir in "$REPO_DIR"/skills/*/; do
     fi
 done
 
+# repo에서 이미 삭제된 skill의 잔여 심링크도 제거.
+# 위 루프는 "$REPO_DIR"/skills/*/ 를 순회하므로 삭제된 skill은 잡히지 않는다.
+# 이 repo의 skills/ 를 가리키면서 대상이 사라진 심링크만 지운다 (남의 링크는 유지).
+for target in "$SKILLS_DIR"/*; do
+    [ -L "$target" ] || continue
+    [ -e "$target" ] && continue
+    case "$(readlink "$target")" in
+        "$REPO_DIR"/skills/*)
+            rm "$target"
+            echo "  잔여 심링크 제거: $(basename "$target") (repo에서 삭제된 skill)"
+            ;;
+    esac
+done
+
 # 외부 skill 심링크 제거 (clone된 코드 자체는 보존 — 재다운로드 비용, 타 프로젝트 공유 가능성)
 EXTERNAL_SKILLS_DIR="${EXTERNAL_SKILLS_DIR:-$HOME/.claude/external-skills}"
 manifest="$REPO_DIR/configs/external-skills.tsv"

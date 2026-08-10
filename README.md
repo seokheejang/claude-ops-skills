@@ -157,7 +157,7 @@ No active entries. The mechanism stays in place — add one TAB-separated line t
 <summary><strong>How Install Works</strong></summary>
 
 1. **Backup**: Saves existing files to `~/.claude/backups/claude-ops-skills/{timestamp}/`
-2. **Symlink skills**: `skills/*` → `~/.claude/skills/*` (skips if already linked)
+2. **Symlink skills**: `skills/*` → `~/.claude/skills/*` (skips if already linked), then **prunes** links left behind by skills deleted from the repo — only links pointing into this repo whose target is gone; other repos' links are left alone
 3. **External skills**: clones each entry in `configs/external-skills.tsv` to `~/.claude/external-skills/` (`EXTERNAL_SKILLS_DIR`), runs `npm install` if needed, then symlinks — all idempotent
 4. **Merge settings.json**: Adds allow/deny rules to existing config (preserves hooks, deduplicates)
 5. **Merge CLAUDE.md**: Marker-based block management (`# === claude-ops-skills:start/end ===`)
