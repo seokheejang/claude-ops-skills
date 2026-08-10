@@ -27,8 +27,8 @@ allowed-tools: Bash, Read, Grep, Glob
 ## Advanced features
 
 규칙 요약:
-- SKILL.md 100줄 이내 유지
-- 100줄 초과 시 REFERENCE.md / EXAMPLES.md / scripts/ 로 분리
+- SKILL.md 150줄 이내 유지
+- 150줄 초과 시 REFERENCE.md / EXAMPLES.md / scripts/ 로 분리
 - description은 "Use when ..." 트리거 포함, 80~250자 권장
 - 자세한 가이드: /write-a-skill 또는 skills/write-a-skill/REFERENCE.md
 -->

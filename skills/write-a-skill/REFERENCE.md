@@ -40,8 +40,8 @@ K8s/서버/DB 운용 등 즉흥이 write·사고·비용으로 이어지는 스�
 
 | 상황 | 추가할 것 | 비고 |
 |------|----------|------|
-| SKILL.md가 100줄 넘음, 분리 토픽 1~2개 | `REFERENCE.md` | mmdraw 패턴 |
-| 독립 토픽이 3개 이상, 도메인이 깊음 | `references/<topic>.md` | kubernetes-specialist 패턴 |
+| SKILL.md가 150줄 넘음, **방법론** 토픽 1~2개 | `REFERENCE.md` | write-a-skill 패턴 |
+| 독립 **방법론** 토픽 3개 이상 | `references/<topic>.md` | best-practice 패턴 (sources/verification/output) |
 | 매번 같은 코드를 LLM이 재생성하게 됨 | `scripts/*.sh|py` | rpc-agent, mmdraw 패턴 |
 | YAML/JSON 템플릿, 샘플, 정적 자원 필요 | `assets/*` | manifest 템플릿 등 |
 
@@ -55,9 +55,9 @@ K8s/서버/DB 운용 등 즉흥이 write·사고·비용으로 이어지는 스�
 
 | Topic | Reference | Load When |
 |-------|-----------|-----------|
-| Networking | `references/networking.md` | Services, Ingress, NetworkPolicy 작업 |
-| Storage | `references/storage.md` | PV, PVC, StorageClass 작업 |
-| Troubleshooting | `references/troubleshooting.md` | 에러 분석, 디버깅 |
+| 소스 카테고리 | `references/sources.md` | 다층 소스 리서치 단계 |
+| Citation 검증 | `references/verification.md` | 종합 분석 전 |
+| Output Format | `references/output.md` | 결과 보고 단계 |
 ```
 
 ### When to Add Scripts
@@ -122,8 +122,8 @@ description: Helps with skills.
 
 | 길이대 | 스킬 |
 |--------|------|
-| 73~95자 | ssh-ops, rpc-health, helm-ops, k8s-ops, k8s-security, db-ops, terraform-ops, ralph, argocd-ops, rpc-agent |
-| 100~150자 | best-practice, compound, mmdraw |
+| 73~95자 | ssh-ops, terraform-ops, ralph, rpc-agent |
+| 100~150자 | best-practice, k8s-ops, helm-ops |
 | 200자+ | grill-me (외부 도입), write-a-skill |
 
 → ops 도구류는 짧아도 됨. 메타/productivity는 트리거 키워드 다양성이 필요해서 길어짐.
@@ -157,7 +157,7 @@ K8s/DB/SSH 작업 스킬은 조회만 허용. 변경 명령어는 텍스트로 �
 
 - **로컬 경로 노출 금지**: `/Users/<id>/`, `/home/<id>/dev/` 등
 - **실제 인프라명 노출 금지**: 클러스터명, 서비스명, 회사명 → `my-cluster`, `my-prod` 등 제네릭으로
-- **kubeconfig 실제 파일명** 노출 금지 (clusters.yaml은 .gitignore)
+- **kubeconfig 실제 파일명·클러스터명** 노출 금지 — 컨텍스트는 사용자가 `--context`로 지정한다
 - **공인 IP 하드코딩 금지** (private/localhost는 OK)
 - **credentials 하드코딩 금지** (password, token, secret, api_key)
 
@@ -176,7 +176,7 @@ pre-commit 훅이 위 5개 항목 자동 검증 (`scripts/pre-commit.sh`).
 - [ ] 추론 자유도를 사용자와 합의 (가드레일형이면 floor + 위임 문구가, 절차 고정형이면 hard 제약·고정 순서가 본문에 반영됨)
 - [ ] description에 "Use when ..." 트리거 명시
 - [ ] description 80~250자 권장 범위
-- [ ] SKILL.md 100줄 이내 (초과 시 REFERENCE.md/EXAMPLES.md/scripts/로 분리)
+- [ ] SKILL.md 150줄 이내 (초과 시 지울 것부터 찾고, 그래도 넘치면 REFERENCE.md/references/로 분리)
 - [ ] frontmatter에 name, description 존재
 - [ ] 디렉토리명과 frontmatter `name` 일치
 - [ ] 시점 종속 정보 없음 ("올해", "최근", "현재 버전" 등 — 시간이 지나면 거짓이 됨)

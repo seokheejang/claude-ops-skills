@@ -626,8 +626,13 @@ main() {
         exit 1
     fi
 
-    generate_clusters_yaml
-    echo ""
+    # clusters.yaml 자동 생성 비활성화 (2026-08-10)
+    # 스킬이 "직접 kubectl 실행" 대신 "복붙 명령 묶음 출력" 모델로 바뀌면서
+    # 클러스터 별칭 해석이 불필요해짐 — 컨텍스트는 사용자가 --context 로 지정한다.
+    # 되살리려면 아래 주석 해제 + skills/k8s-ops/clusters.yaml.example 복원 (둘 다 삭제됨).
+    # generate_clusters_yaml 함수 본체는 보존되어 있음.
+    # generate_clusters_yaml
+    # echo ""
     install_skills
     echo ""
     install_external_skills

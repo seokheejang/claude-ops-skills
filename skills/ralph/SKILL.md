@@ -88,8 +88,8 @@ ralph는 **L1+L2 (라인/함수 동작 검증)**에 특화. 다음 영역은 ral
 
 | 검토 영역 | 도구 |
 |----------|------|
-| 코드 단순화/중복 통합 | code-simplifier agent (Anthropic plugin) |
-| 버그/로직/보안/품질 (L3) | code-reviewer agent (도입 예정 — `agents/code-reviewer.md`) |
+| 코드 단순화/중복 통합 | `/simplify` (하네스 기본) |
+| 버그/로직/보안/품질 (L3) | `/code-review [low\|medium\|high\|max]` (하네스 기본) |
 | 설계 결정/트레이드오프 검토 (L4) | `/grill-me` |
 | 아키텍처 결정 | 사람 리뷰, ADR 작성 |
 
