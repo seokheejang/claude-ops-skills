@@ -26,6 +26,14 @@ if [[ "${BASH_VERSINFO[0]}" -lt 4 ]]; then
   exit 0  # 최신 bash 못 찾으면 pass through
 fi
 
+# --- 종료 코드 규약 (Claude Code hook protocol) ---
+#  exit 0 + JSON 출력 → 그 결정을 따른다 (approve)
+#  exit 0 + 출력 없음 → 결정 보류, 기존 permission 시스템으로 위임
+#  exit 2            → 차단. stderr 가 Claude 에게 전달된다 (block)
+#  그 외 0이 아닌 값 → 훅 오류로 처리되어 사용자에게 노출된다
+#                      ("failed with non-blocking status code")
+#  위임은 반드시 exit 0 이어야 한다. exit 1 을 쓰면 매 위임마다 오류가 뜬다.
+
 # --- 출력 형식 (hookSpecificOutput 표준) ---
 readonly ALLOW_JSON='{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"allow"}}'
 
@@ -38,7 +46,7 @@ block() {
 # --- 의존성 확인 ---
 for dep in jq shfmt; do
   if ! command -v "$dep" &>/dev/null; then
-    exit 1  # 의존성 없으면 permission 시스템으로 위임
+    exit 0  # 의존성 없으면 permission 시스템으로 위임
   fi
 done
 
@@ -48,11 +56,11 @@ TOOL_NAME=$(echo "$INPUT" | jq -r '.tool_name // empty')
 
 # Bash 도구만 처리
 if [ "$TOOL_NAME" != "Bash" ]; then
-  exit 1
+  exit 0
 fi
 
 COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command // empty')
-[ -z "$COMMAND" ] && exit 1
+[ -z "$COMMAND" ] && exit 0
 
 # --- settings.json에서 allow/deny prefix 로드 ---
 find_git_root() {
@@ -92,7 +100,7 @@ while IFS= read -r line; do
 done < <(load_prefixes)
 
 # allow 목록이 비어있으면 판단 불가 → 위임
-[ ${#ALLOWED_PREFIXES[@]} -eq 0 ] && exit 1
+[ ${#ALLOWED_PREFIXES[@]} -eq 0 ] && exit 0
 
 # --- shfmt AST에서 명령 추출하는 jq 필터 ---
 read -r -d '' SHFMT_JQ_FILTER << 'JQEOF' || true
@@ -302,15 +310,15 @@ if ! needs_compound_parse "$COMMAND"; then
     if is_denied "$INDIRECT" || is_denied "$INDIRECT_UNQUOTED"; then
       block "간접 실행에 차단된 명령이 포함되어 있습니다: $INDIRECT"
     fi
-    exit 1  # 간접 실행은 allow 판단 불가 → 위임
+    exit 0  # 간접 실행은 allow 판단 불가 → 위임
   fi
   # bash/sh + herestring/heredoc → 위임
   if is_shell_with_redirect "$COMMAND" && [[ "$COMMAND" == *'<'* ]]; then
-    exit 1  # 위임
+    exit 0  # 위임
   fi
   is_allowed "$COMMAND" && approve
   is_allowed "$UNQUOTED" && approve
-  exit 1  # 판단 불가 → 위임
+  exit 0  # 판단 불가 → 위임
 fi
 
 # 복합 명령 → shfmt로 모든 서브 명령 추출
@@ -320,7 +328,7 @@ while IFS= read -r line; do
 done < <(parse_compound "$COMMAND")
 
 # 파싱 실패 또는 빈 결과 → 위임 (안전하지 않은 것을 승인하지 않음)
-[ ${#EXTRACTED[@]} -eq 0 ] && exit 1
+[ ${#EXTRACTED[@]} -eq 0 ] && exit 0
 
 # 하나라도 deny → block (간접 실행 내부 명령도 검증)
 for cmd in "${EXTRACTED[@]}"; do
@@ -336,7 +344,7 @@ for cmd in "${EXTRACTED[@]}"; do
   fi
   # bash/sh + redirect 패턴 → 위임 (내부 명령 판단 불가)
   if is_shell_with_redirect "$cmd" && [[ "$COMMAND" == *'<'* || "$COMMAND" == *'<<'* ]]; then
-    exit 1  # 위임
+    exit 0  # 위임
   fi
 done
 
@@ -368,4 +376,4 @@ if $all_allowed; then
 fi
 
 # 일부가 판단 불가 → 위임
-exit 1
+exit 0
