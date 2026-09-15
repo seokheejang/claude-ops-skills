@@ -42,7 +42,7 @@ K8s/서버/DB 운용 등 즉흥이 write·사고·비용으로 이어지는 스�
 |------|----------|------|
 | SKILL.md가 150줄 넘음, **방법론** 토픽 1~2개 | `REFERENCE.md` | write-a-skill 패턴 |
 | 독립 **방법론** 토픽 3개 이상 | `references/<topic>.md` | best-practice 패턴 (sources/verification/output) |
-| 매번 같은 코드를 LLM이 재생성하게 됨 | `scripts/*.sh|py` | rpc-agent, mmdraw 패턴 |
+| 매번 같은 코드를 LLM이 재생성하게 됨 | `scripts/*.sh|py` | mmdraw 패턴 (`_disabled/`) |
 | YAML/JSON 템플릿, 샘플, 정적 자원 필요 | `assets/*` | manifest 템플릿 등 |
 
 ### `references/` 사용 시 SKILL.md에 가이드 표 두기
@@ -70,7 +70,6 @@ K8s/서버/DB 운용 등 즉흥이 write·사고·비용으로 이어지는 스�
 
 토큰 절약 + 신뢰성 확보. 예시:
 - `mmdraw/scripts/render.sh` — Mermaid → PNG 렌더링 (mmdc → npx fallback)
-- `rpc-agent/scripts/cosmos_total_tx.py` — 블록 순회 트랜잭션 집계
 
 ### When to Add Assets
 
@@ -122,8 +121,8 @@ description: Helps with skills.
 
 | 길이대 | 스킬 |
 |--------|------|
-| 73~95자 | ssh-ops, terraform-ops, ralph, rpc-agent |
-| 100~150자 | best-practice, k8s-ops, helm-ops |
+| 73~95자 | ssh-ops, terraform-ops |
+| 100~150자 | best-practice, k8s-ops, helm-ops, ralph |
 | 200자+ | grill-me (외부 도입), write-a-skill |
 
 → ops 도구류는 짧아도 됨. 메타/productivity는 트리거 키워드 다양성이 필요해서 길어짐.

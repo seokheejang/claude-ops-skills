@@ -49,13 +49,6 @@ Terraform 상태 조회, plan 분석, IaC 검증 전용 skill. READ-ONLY 명령�
 
 IaC 작성/수정 요청 시 → `Read ${CLAUDE_SKILL_DIR}/../../docs/terraform-authoring.md` 참조. CLI 실행 금지, Write/Edit만 사용.
 
-## Troubleshooting
-
-- **init 필요**: `.terraform/` 존재 확인, `terraform init` 텍스트 안내, backend 접근 권한 필요
-- **State lock**: 에러의 Lock ID 확인, `force-unlock <id>` 텍스트 안내 (주의사항 포함)
-- **Provider 버전 충돌**: `.terraform.lock.hcl` + `required_providers` 확인, `init -upgrade` 텍스트 안내
-- **Plan drift**: `state show <resource>`로 현재 state 확인, 수동 변경(콘솔/CLI) drift 분석
-
 ## Output
 
 디렉토리/워크스페이스 먼저 명시. state는 리소스 타입별 수량 테이블. plan은 변경 유형별 분류, 삭제 **굵게** 최상단 경고. 보안 findings는 severity별 정리. 조치는 텍스트 안내.

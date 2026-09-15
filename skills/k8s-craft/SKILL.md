@@ -31,31 +31,19 @@ K8s 리소스 작성/설계 스킬. **manifest 파일 출력 + 적용 명령어 
 3. **로컬 검증** — `kubectl apply --dry-run=client -f <file>` 또는 `kubeval`
 4. **적용 안내** — 명령어를 복붙 가능한 블록으로 제공. 실행은 사용자
 
-## MUST DO
+## 우리 환경의 결정사항
 
-- Declarative YAML (imperative kubectl 회피)
-- 모든 컨테이너에 resource requests/limits
-- liveness/readiness probe 포함
-- 민감 정보는 Secret (ConfigMap에 비밀번호 X)
-- 최소 권한 RBAC — Role/RoleBinding 우선, ClusterRole은 근거 명시
-- NetworkPolicy로 네트워크 분리, Namespace로 논리적 격리
-- 일관된 라벨링 (`app`, `version`, `tier`)
+표준 모범사례(resource limits, probe, Secret 분리, 최소 권한 RBAC, `latest` 태그 회피 등)는 적지 않는다 — 지시 없이도 적용되는 것이고, 적어두면 낡아서 틀린 답의 근거가 된다. 여기 남기는 것은 우리가 따로 정한 것뿐이다.
 
-## MUST NOT DO
-
-- 프로덕션에 resource limits 없이 배포
-- ConfigMap에 secret 저장
-- 기본 ServiceAccount를 애플리케이션 Pod에 사용
-- 무제한 네트워크 접근 (default allow-all)
-- 정당화 없는 root 컨테이너 / probe 생략
-- 프로덕션 이미지에 `latest` 태그
-- 불필요한 포트/서비스 노출
+- **NetworkPolicy 를 기본으로 넣는다** — 네임스페이스 격리만으로 끝내지 않는다
+- **ClusterRole 을 쓸 때는 왜 Role 로 안 되는지 근거를 주석에 남긴다**
+- 버전 종속적 선택(apiVersion, 특정 애드온)은 **어느 버전 기준인지 명시**한다
 
 ## Output
 
 - 파일 경로: 사용자 지정 또는 `docs/k8s/<resource>-<name>.yaml`
 - 멀티 리소스는 `---` 구분자
 - 적용 명령어는 복붙 블록으로 (실행 X)
-- 설계 결정 근거 1~2줄 요약. 버전 종속적 선택(apiVersion, 특정 애드온)은 **어느 버전 기준인지 명시**
+- 설계 결정 근거 1~2줄 요약
 
 원본: github.com/Jeffallan/claude-skills (MIT) — 우리 컨벤션에 맞게 customize.

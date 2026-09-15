@@ -67,6 +67,7 @@ claude-ops-skills 저장소에 새 스킬을 추가할 때 인터뷰식으로 �
 판단 기준: *"이걸 지우면 모델이 틀린 답을 내나, 아니면 똑같이 잘 하나?"* 똑같이 잘 하면 지운다.
 
 > 2026-08-10에 이 기준으로 k8s-craft/helm-ops/argocd-ops/k8s-ops의 `references/` 5,773줄을 삭제했다.
+> 2026-09-15에 2차로 `skills/` 를 9,254 → 3,898줄로 줄였다 — 스킬 6개에 복제돼 있던 실행 모델 블록(글로벌 CLAUDE.md 중복), Troubleshooting 섹션 4개, notion-report 의 영어 샘플 번들. **글로벌 CLAUDE.md 에 있는 규칙을 스킬에 다시 적지 않는다**가 이때 추가된 기준이다.
 
 ## Length Rule (150줄)
 

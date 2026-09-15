@@ -8,7 +8,6 @@ claude-ops-skills 다음 작업(Backlog) + 작업 이력 관리.
 ### 우선순위 높음
 - [x] **code-reviewer agent 도입**: 하네스 기본 `/code-review`(effort low~max) + `/simplify`로 충족 → 자체 구현 불필요. ralph 페어링 표를 실물 명령으로 교체 (v1.0)
 - [ ] **skill 실전 테스트**: 각 skill을 실제 운영 환경에서 호출하여 워크플로우 검증 (특히 best-practice 6개 보완 실전 검증, k8s-craft Safety Rules 강제 확인)
-- [ ] **agent 실전 테스트**: k8s-debugger, rpc-monitor를 실제 이슈 상황에서 사용해보기
 
 ### 중간 우선순위
 - [x] **K8s 보안 skill + agent**: 클러스터 보안 점검 자동화 (RBAC, NetworkPolicy, PodSecurity 등 감사) → v0.4
@@ -24,6 +23,20 @@ claude-ops-skills 다음 작업(Backlog) + 작업 이력 관리.
 - [ ] **zshrc alias**: 자주 쓰는 조합 단축키 추가
 
 ## 작업 이력
+
+### v1.1 — 중복 제거 2차 (2026-09-15)
+
+v1.0 기준(모델이 아는 건 쓰지 않는다)을 아직 닿지 않은 구간에 마저 적용. **`skills/` 9,254 → 3,898줄** (`find skills -name '*.md' -o -name '*.py' -o -name '*.sh' | xargs wc -l` 기준). `agents/` 6개는 별도로 삭제.
+
+- **실행 모델 블록 6중복 제거**: `k8s-ops`·`k8s-security`·`ssh-ops`·`db-ops`·`argocd-ops`·`helm-ops` 가 같은 11~13줄을 각자 들고 있었다. 글로벌 CLAUDE.md 「K8s·ArgoCD 등 프록시로 못 보는 것」에 이미 있고 매 세션 로드되므로 참조 한 줄로 대체. 스킬 고유 항목만 남김 (ssh 래퍼 필수, DB 비밀번호 취급, 감사 미확인 처리, `app list` 선행)
+- **Troubleshooting 섹션 4개 삭제**: `k8s-ops`·`helm-ops`·`terraform-ops`·`db-ops`. `137=OOM`, ImagePullBackOff 대응, state lock 처리 등 전부 표준 지식. `local-path 는 quota 가 없다` 한 줄만 판정 기준으로 이동
+- **`k8s-craft` 자기모순 해소**: "표준 스펙은 이미 아는 걸 쓴다" 고 써놓고 아래에서 표준 모범사례 14개를 나열하고 있었다. 우리가 따로 정한 3개만 남김
+- **`transfer-en` 단순화** (217 → 53줄): Level System 4단계·마일스톤 승격·`levelup.md`·`pending/learning.md` 2단계 노트 삭제. `public/learning.md` 와 `level.md` 가 한 번도 생성된 적 없어 실제로 돌지 않는 상태 기계였다. 번역 + 학습 포인트만 남김
+- **`notion-report` 번들 정리** (5,345 → 2,362줄): `examples/` 14개 전부 삭제 (영어 산출물 샘플이라 「문서는 한국어로 쓴다」 규칙과 충돌, DevOps 무관한 것 다수), Notion 사용법 설명 `reference/` 5개 삭제, `*-format.md` 4개 삭제 (`format-selection-guide.md` 의 표 한 행을 20~40줄로 늘려놓은 중복이었다)
+- **`best-practice` 참조 정리** (277 → 184줄): 기업·인명 카탈로그를 검색 쿼리 패턴으로 대체(낡아서 검색 범위를 좁혔다), 출력 포맷 템플릿을 필수 항목 + Quality Criteria 로 대체
+- **`ralph` 개선**: 삭제 대신 강화. **분석/디버깅 도메인 추가** — 기존 4개 도메인에서 분석 작업이 전부 "범용"(동어반복 3줄)으로 떨어져 검증의 실질이 없었다. troubleshoot 의 증거 규율에서 6개 항목을 가져옴
+- **삭제**: `rpc-agent` 스킬, `agents/` 6개 (install.sh 가 설치하지 않고 `~/.claude/agents/` 도 없는 죽은 정의), `transfer-en/levelup.md`
+- **`argocd proj edit` / `proj set` deny 추가**: SKILL.md 는 금지한다고 적었는데 settings.json 에는 `create`·`delete` 만 있어 실제로 차단되지 않았다 (`/ralph` 재검증에서 발견)
 
 ### v1.0 — Opus 5 대응 정리 (2026-08-10)
 

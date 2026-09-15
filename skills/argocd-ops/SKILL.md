@@ -8,17 +8,13 @@ allowed-tools: Bash, Read, Grep, Glob, Write, Edit
 # ArgoCD Operations Skill
 
 ArgoCD 앱 상태 조회·동기화 모니터링·드리프트 감지 전용. **READ-ONLY만.**
-금지: `app create/delete/sync/rollback/set/patch/terminate-op`, `repo add/remove`, `cluster add/remove`, `proj create/delete/edit`, `account update-password`, `login`. 필요하면 텍스트로만 안내.
+금지: `app create/delete/sync/rollback/set/patch/terminate-op`, `repo add/rm`, `cluster add/rm`, `proj create/delete/edit/set`, `account update-password`, `login`. 필요하면 텍스트로만 안내.
 
-## 실행 모델 — 명령은 내가, 실행은 사용자가
+## 이 스킬만의 규율
 
-**ArgoCD 서버에 직접 닿지 않는 것을 전제한다** — CLI(API)도, 웹 UI도(로그인 월). 시도해서 실패한 뒤 알아차리지 말고 처음부터 그렇게 움직인다.
+ArgoCD 서버에 직접 닿지 않는다. CLI(API)도, 웹 UI도(로그인 월) 마찬가지다. 명령을 한 번에 묶어 내는 방식, 화면에 담기게 줄이는 규칙, 붙여넣은 출력을 실측으로 다루는 규칙, `(미확인)` 표기는 **글로벌 CLAUDE.md 「K8s·ArgoCD 등 프록시로 못 보는 것」을 따른다.** ArgoCD에만 해당하는 것은 하나다.
 
-- `app list`로 먼저 비정상 앱을 좁힌 뒤 앱별 조회를 낸다. 앱 이름을 모르는 채로 `app get`부터 내지 않는다
-- 결과가 **스크린샷으로 돌아오므로 화면에 담기게** 줄인다 — `grep -Ev 'Synced.*Healthy'`로 정상 앱을 걸러내고, `diff`·`logs`는 `| head -n` / `--tail`로 자른다
-- 돌아온 출력은 **실측**으로 다룬다. 단 어느 ArgoCD 인스턴스/클러스터 것인지 불분명하면 그것부터 되묻는다
-- 확인 못 한 것은 `(미확인)`으로 남긴다. **추측으로 메우지 않는다**
-- 예외: 사용자가 "직접 실행해봐"라고 하면 그때만 시도한다
+- **`app list`로 먼저 비정상 앱을 좁힌 뒤** 앱별 조회를 낸다. 앱 이름을 모르는 채로 `app get`부터 내지 않는다
 
 ## Arguments
 
@@ -59,13 +55,10 @@ argocd repo list
 | Synced/OutOfSync | Progressing | **[WARNING]** | 배포 진행 중 (10분+ 주의) |
 | Synced | Suspended/Healthy | **[INFO]** | 정상/일시중지 |
 
-## Troubleshooting
+## 다른 스킬로 넘기는 지점
 
-- **Sync 실패**: `app get` → Conditions, `app diff` → 실패 리소스. 원인은 잘못된 매니페스트 / CRD 미존재 / RBAC 부족
-- **Degraded**: `app resources`로 Degraded 리소스 식별 → [k8s-ops](../k8s-ops/) 연계. 원인은 이미지 풀 실패 / 리소스 부족
-- **OutOfSync**: `app diff`로 수동 변경 drift vs Git 미sync vs auto-sync 비활성화를 구분
-- **Repo 연결**: `repo list` → Connection Status. SSH key/token 만료 가능성
-- **AppSet 렌더링**: `app list`가 예상보다 적으면 generator 설정 문제 → [k8s-ops](../k8s-ops/)로 `kubectl --context $CTX get applicationset -A`
+- 리소스가 **Degraded** 면 `app resources`로 대상을 짚은 뒤 [k8s-ops](../k8s-ops/)로 Pod 레벨을 확인한다
+- `app list` 결과가 예상보다 적으면 ApplicationSet 렌더링 문제다 → [k8s-ops](../k8s-ops/)로 `kubectl --context $CTX get applicationset -A`
 
 ## 매니페스트 작성
 

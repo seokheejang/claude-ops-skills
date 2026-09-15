@@ -7,18 +7,10 @@ allowed-tools: Bash, Read, Grep, Glob
 
 # K8s Operations Skill
 
-Kubernetes 조회 전용. **READ-ONLY만.** 변경 명령(`apply/delete/patch/scale/rollout/edit/create/replace/set/label/annotate/taint/cordon/drain/expose`)은 어떤 상황에서도 실행하지 않는다 — 필요하면 텍스트로만 안내.
+Kubernetes 조회 전용. **READ-ONLY만.** 변경 계열 명령은 settings.json deny 규칙이 차단한다 — 필요하면 텍스트로만 안내.
 
-## 실행 모델 — 명령은 내가, 실행은 사용자가
-
-**이 환경에서 클러스터에 직접 닿지 않는 것을 전제한다.** 시도해서 실패한 뒤 알아차리지 말고 처음부터 그렇게 움직인다.
-
-- 필요한 조회를 **한 번에 묶어** 복붙 가능한 블록 하나로 낸다. 한 줄씩 찔끔 요청하지 않는다
-- `--context <name>`을 **반드시 명시**한다. 컨텍스트를 모르면 그것부터 묻는다
-- 결과가 **스크린샷으로 돌아오므로 화면에 담기게 줄인다** — `--no-headers`, `-o jsonpath`, `| head -n`, `| grep`, `--sort-by`로 필요한 필드만
-- 돌아온 출력은 **실측**으로 다룬다. 단 어느 컨텍스트/네임스페이스에서 나왔는지 불분명하면 그것부터 되묻는다
-- 확인 못 한 것은 `(미확인)`으로 남긴다. **추측으로 메우지 않는다.** 그 답에 의존하지 않는 분석을 먼저 끝내고 요청한다
-- 예외: 사용자가 "직접 실행해봐"라고 하면 그때만 시도한다
+클러스터에 직접 닿지 않는다. 명령을 한 번에 묶어 내는 방식, 화면에 담기게 줄이는 규칙, 붙여넣은 출력을 실측으로 다루는 규칙, `(미확인)` 표기는 **글로벌 CLAUDE.md 「K8s·ArgoCD 등 프록시로 못 보는 것」을 따른다.** 여기서 다시 적지 않는다.
+예외는 하나뿐이다: 사용자가 "직접 실행해봐"라고 하면 그때만 시도한다.
 
 ## Arguments
 
@@ -57,14 +49,7 @@ kubectl --context $CTX get pvc -A --no-headers | grep -v Bound
 **PVC 사용률**: 70~85% **[WARNING]** · 85~95% **[HIGH]** · 95%+ **[CRITICAL]**
 70% 넘으면 `du -sh <path>/*`로 디렉토리별 분석, 연결 워크로드 식별, 파일 타임스탬프로 증가 추세, retention 설정까지 이어서 묻는다.
 
-## Troubleshooting
-
-- **CrashLoop**: Events + `logs --previous` + exit code (137=OOM, 1=app, 139=segfault) + limits
-- **Pending**: Events, 노드 가용성, nodeSelector/tolerations/affinity, PVC 바인딩
-- **OOMKilled(137)**: `top pod`으로 실사용 확인 후 limits 재검토
-- **ImagePullBackOff**: 이미지명/태그, imagePullSecrets
-- **Svc 접속불가**: `endpoints` 비어있으면 selector 불일치 → Pod Ready, containerPort=targetPort, NetworkPolicy 순으로
-- **PVC 부족**: local-path는 quota가 없다 — 호스트 디스크도 같이 봐야 한다
+> **local-path 는 quota 가 없다** — PVC 용량만 보면 안 되고 호스트 디스크도 같이 봐야 한다. 이 환경 고유 사항이다.
 
 설계/manifest 작성은 [k8s-craft](../k8s-craft/), 근거 규율이 필요한 장애 분석은 [troubleshoot](../troubleshoot/) 사용.
 

@@ -21,16 +21,12 @@ Helm 릴리스 조회 및 차트 검증 전용. **READ-ONLY만.**
 | **차트 모드** | 로컬 파일 (`lint`, `template`, `show`) | ✅ **직접 실행한다** — 클러스터 접속 불필요 |
 | **릴리스 모드** | 클러스터 (`list`, `status`, `get`, `history`) | ❌ 닿지 않는 것을 전제 — 명령 묶음만 출력 |
 
-## 릴리스 모드 — 명령은 내가, 실행은 사용자가
+## 릴리스 모드 — 이 스킬만의 규율
 
-**클러스터에 직접 닿지 않는 것을 전제한다.** 시도해서 실패한 뒤 알아차리지 말고 처음부터 그렇게 움직인다.
+클러스터에 직접 닿지 않는다. 명령을 한 번에 묶어 내는 방식, 화면에 담기게 줄이는 규칙, 붙여넣은 출력을 실측으로 다루는 규칙, `(미확인)` 표기는 **글로벌 CLAUDE.md 「K8s·ArgoCD 등 프록시로 못 보는 것」을 따른다.** Helm에만 해당하는 것은 아래 둘이다.
 
-- `--kube-context`를 **반드시 명시**한다. 컨텍스트를 모르면 그것부터 묻는다
-- `list`로 먼저 대상을 좁힌 뒤 릴리스별 조회를 낸다. 릴리스 이름을 모르는 채로 `status`부터 내지 않는다
-- 결과가 **스크린샷으로 돌아오므로 화면에 담기게** 줄인다 — `get manifest`·`get values -a`는 길어서 `| head -n` 필수
-- 돌아온 출력은 **실측**으로 다룬다. 단 어느 컨텍스트/네임스페이스에서 나왔는지 불분명하면 그것부터 되묻는다
-- 확인 못 한 것은 `(미확인)`으로 남긴다. **추측으로 메우지 않는다**
-- 예외: 사용자가 "직접 실행해봐"라고 하면 그때만 시도한다
+- **`list`로 먼저 대상을 좁힌 뒤** 릴리스별 조회를 낸다. 릴리스 이름을 모르는 채로 `status`부터 내지 않는다
+- **`get manifest`·`get values -a`는 길다** — `| head -n` 없이 내지 않는다
 
 ```bash
 CTX="<context>"                        # ← 먼저 이 줄만 채우고 list 부터
@@ -56,12 +52,7 @@ helm --kube-context $CTX get manifest $REL -n $NS | head -60
 
 차트 **작성/수정**은 Write/Edit만 사용. 사내 컨벤션은 claude-ops-skills 저장소의 `docs/helm-authoring.md` 참조 (values 계층화, 환경별 분리 패턴). 표준 Helm 문법은 이미 아는 걸 쓴다.
 
-## Troubleshooting
-
-- **pending-install/upgrade**: `history`로 이전 리비전 → `status`로 리소스 상태 → [k8s-ops](../k8s-ops/) 연계. 해결은 `helm rollback` 텍스트 안내
-- **failed**: `history`에서 실패 리비전, `get manifest`로 배포 리소스. 원인은 리소스 충돌 / 잘못된 values / RBAC 부족
-- **dependency 에러**: `Chart.yaml` dependencies + `helm dependency list`. `helm dependency update` 텍스트 안내
-- **template 렌더링 실패**: 에러의 파일:라인, values 필수값 누락, `helm template --debug`
+릴리스가 `failed`·`pending-*` 이면 `history`로 실패 리비전을 짚은 뒤 [k8s-ops](../k8s-ops/)로 실제 리소스 상태를 확인한다.
 
 ## Output
 

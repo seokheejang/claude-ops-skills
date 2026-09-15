@@ -32,7 +32,7 @@ DevOps 의사결정을 위한 체계적 리서치 스킬. 업계 사례, 커뮤�
 |-------|------|-----------|
 | 소스 카테고리 + AI 콘텐츠 식별 | [references/sources.md](references/sources.md) | 2단계 다층 소스 리서치 |
 | Citation 검증 + 출처 독립성 + 도메인 시의성 | [references/verification.md](references/verification.md) | 4단계 종합 분석, 5단계 보고 전 |
-| Output Format + 학습 저장 권유 + Quality Criteria | [references/output.md](references/output.md) | 5단계 결과 보고 |
+| 필수 포함 항목 + Quality Criteria + 학습 저장 권유 | [references/output.md](references/output.md) | 5단계 결과 보고 |
 
 ## Workflow
 
@@ -62,7 +62,7 @@ DevOps 의사결정을 위한 체계적 리서치 스킬. 업계 사례, 커뮤�
 
 ### 3단계: 다층 소스 리서치 (외부)
 
-[references/sources.md](references/sources.md)의 4개 카테고리(A/B/C/D)에서 최소 1개씩 확보.
+[references/sources.md](references/sources.md)의 4개 카테고리(공식/업계 사례/커뮤니티/프로젝트 건강도)에서 최소 1개씩 확보.
 검색 결과 평가 시 AI 생성 콘텐츠 식별 휴리스틱 적용 — 의심 신호 2개+ 시 ⚠️ 태그 또는 1차 출처로 대체.
 
 ### 4단계: 종합 분석 + 검증
@@ -81,6 +81,6 @@ DevOps 의사결정을 위한 체계적 리서치 스킬. 업계 사례, 커뮤�
 
 ### 5단계: 결과 보고 + 학습 저장 권유
 
-[references/output.md](references/output.md) 포맷으로 정리 후 출력.
+[references/output.md](references/output.md) 의 필수 항목과 Quality Criteria 를 만족하도록 정리해 출력한다. 구조는 주제에 맞게 짠다 — 고정 템플릿은 두지 않는다.
 
 리서치가 의미 있는 결과(명확한 결론, 비자명한 인사이트, 재참조 가치)일 때만 끝에 학습 저장 권유 메시지 추가. 단순 정보 조회나 결론 모호 시 권유 생략.

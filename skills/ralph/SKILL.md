@@ -1,6 +1,6 @@
 ---
 name: ralph
-description: Self-review loop - iteratively verify and fix work until quality criteria are met
+description: Self-review loop - iteratively verify and fix work until quality criteria are met. Works on any task type, not just code: analysis, debugging results, config and docs each have their own checklist
 argument-hint: "[max-iterations] <task-description>"
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob, Agent
 ---
@@ -8,6 +8,8 @@ allowed-tools: Bash, Read, Write, Edit, Grep, Glob, Agent
 # Ralph - Self-Review Loop
 
 작업 수행 후 스스로 검증하고, 이슈 발견 시 수정 → 재검증을 반복. `/ralph` 호출 시에만 동작. 상세 체크리스트와 판정 정책은 [references/](references/) 참조.
+
+**코드 작업 전용이 아니다.** 분석 결과·디버깅 결론·설정·문서 모두 대상이고, 도메인마다 체크리스트가 따로 있다 ([checklists.md](references/checklists.md)).
 
 ## Arguments
 
@@ -84,13 +86,14 @@ allowed-tools: Bash, Read, Write, Edit, Grep, Glob, Agent
 
 ## Scope and Pairing
 
-ralph는 **L1+L2 (라인/함수 동작 검증)**에 특화. 다음 영역은 ralph 범위 밖이므로 별도 도구로 후속 검토:
+ralph 는 **이미 낸 결과물을 항목 단위로 다시 따지는 루프**다. 설계 자체를 새로 논의하거나, 대규모 리팩토링 판단을 내리는 자리는 아니다.
 
-| 검토 영역 | 도구 |
-|----------|------|
-| 코드 단순화/중복 통합 | `/simplify` (하네스 기본) |
-| 버그/로직/보안/품질 (L3) | `/code-review [low\|medium\|high\|max]` (하네스 기본) |
-| 설계 결정/트레이드오프 검토 (L4) | `/grill-me` |
-| 아키텍처 결정 | 사람 리뷰, ADR 작성 |
+| 필요해진 것 | 넘길 곳 |
+|------------|--------|
+| 설계 결정·트레이드오프를 결정 트리로 정리 | [grill-me](../grill-me/) |
+| 근거 규율이 필요한 깊은 장애 분석 | [troubleshoot](../troubleshoot/) |
+| 업계 사례·대안 비교가 필요 | [best-practice](../best-practice/) |
+| 코드 중복 통합·구조 단순화 | `/simplify` (하네스 기본, 필요할 때만) |
+| 넓은 범위의 버그·보안 스윕 | `/code-review [low\|medium\|high\|max]` (하네스 기본, 필요할 때만) |
 
-ralph가 [NOTE]로 보고한 항목 중 구조적 이슈는 위 도구로 후속 검토 권장.
+ralph 가 [NOTE]로 보고한 항목 중 구조적 이슈는 위로 넘긴다. 하네스 기본 도구를 상시로 쓰지 않는다면 ralph 만으로도 충분한 경우가 많고, **범위가 넓어질 때만** 위 도구를 부르면 된다.
