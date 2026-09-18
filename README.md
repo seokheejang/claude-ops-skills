@@ -61,6 +61,7 @@ make test       # Run PreToolUse hook tests
 | ralph | `/ralph [N] <task>` | Self-review loop (iterative verification, default 5 rounds) — per-domain checklists for code, DevOps/IaC, analysis/debugging, config/docs |
 | catchup | `/catchup` | Read-only session context restore — reads git (recent commits + uncommitted) → CLAUDE.md → README → docs, briefs what was done last & where to start |
 | best-practice | `/best-practice <topic or question>` | DevOps best practice research with Citation verification, AI content detection, source independence, domain-aware recency |
+| gcx-onprem | `/gcx-onprem` | On-prem Grafana constraints & query judgment rules for gcx — what this instance cannot do, not gcx syntax |
 | grill-me | `/grill-me` | Stress-test a plan or design via relentless one-by-one interview until shared understanding |
 | write-a-skill | `/write-a-skill` | Interview-based scaffolding for new skills — enforces description/length/security conventions |
 | transfer-en | `/transfer-en <한국어>` | Korean → simple, natural English for Slack/email — plain words, nothing awkward to a native speaker |

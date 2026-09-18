@@ -13,5 +13,11 @@ skills/k8s-ops/clusters.yaml
 # DB 타겟 정보 (host/user/password_env 포함) — 로컬 전용
 skills/db-ops/db-targets.yaml
 
+# gcx-onprem 검토 대기 목록 (사내 클러스터명·UID·라벨 값 포함) — 로컬 전용
+skills/gcx-onprem/pending.md
+
+# gcx-onprem 체인 조회 실제 값 (클러스터명·네임스페이스·호스트명·권한 상태) — 로컬 전용
+skills/gcx-onprem/references/chains.md
+
 
 *.bak
