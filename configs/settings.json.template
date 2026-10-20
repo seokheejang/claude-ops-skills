@@ -1,6 +1,6 @@
 {
   "_comment": "claude-ops-skills: merge into ~/.claude/settings.json",
-  "_categories": "allow flow: K8s > SSH > Git > GitHub CLI > Linux > Dev tools > AWS > Tools > Web",
+  "_categories": "allow flow: K8s > Git > GitHub CLI > Linux > Dev tools > AWS > Tools > Web",
   "permissions": {
     "allow": [
       "Bash(kubectl get *)",
@@ -13,18 +13,6 @@
       "Bash(KUBECONFIG=* kubectl logs *)",
       "Bash(KUBECONFIG=* kubectl top *)",
       "Bash(KUBECONFIG=* kubectl exec *)",
-
-      "Bash(ssh * uptime*)",
-      "Bash(ssh * free *)",
-      "Bash(ssh * df *)",
-      "Bash(ssh * top *)",
-      "Bash(ssh * ps *)",
-      "Bash(ssh * systemctl status *)",
-      "Bash(ssh * journalctl *)",
-      "Bash(ssh * tail *)",
-      "Bash(ssh * cat *)",
-      "Bash(ssh * netstat *)",
-      "Bash(ssh * ss *)",
 
       "Bash(git status*)",
       "Bash(git log*)",
