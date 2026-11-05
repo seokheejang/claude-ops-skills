@@ -314,6 +314,19 @@ merge_settings() {
 
     # _comment, _categories 필드 제거
     echo "$merged" | jq 'del(._comment) | del(._categories)' > "$SETTINGS_FILE"
+
+    # 머지는 합집합이라 템플릿에서 지운 규칙이 남는다. 자동 삭제는 사용자가 직접
+    # 넣은 규칙과 구별할 수 없어서 하지 않고, 템플릿에 없는 규칙을 알리기만 한다
+    local extra
+    extra=$(jq -rs '.[0].permissions as $t | .[1].permissions as $u
+        | (($u.allow // []) - ($t.allow // []) | map("allow: " + .)),
+          (($u.deny // []) - ($t.deny // []) | map("deny:  " + .))
+        | .[]' "$resolved_template" "$SETTINGS_FILE")
+    if [ -n "$extra" ]; then
+        log_warn "  템플릿에 없는 규칙 (직접 추가한 것이 아니면 $SETTINGS_FILE 에서 지울 것):"
+        printf '%s\n' "$extra" | sed 's/^/      /'
+    fi
+
     rm -f "$resolved_template"
     log_info "  settings.json 머지 완료 (permissions + hooks)"
 }
