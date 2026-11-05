@@ -196,8 +196,8 @@
       "Read",
       "Glob",
       "Grep",
-      "WebFetch(*)",
-      "WebSearch(*)"
+      "WebFetch",
+      "WebSearch"
     ],
     "deny": [
       "Bash(kubectl apply *)",
