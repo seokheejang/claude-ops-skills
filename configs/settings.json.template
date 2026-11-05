@@ -193,9 +193,9 @@
       "Bash(aws cloudformation describe-*)",
       "Bash(aws ssm get-parameter*)",
 
-      "Read(*)",
-      "Glob(*)",
-      "Grep(*)",
+      "Read",
+      "Glob",
+      "Grep",
       "WebFetch(*)",
       "WebSearch(*)"
     ],
